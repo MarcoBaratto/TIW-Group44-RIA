@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Login & Registration page</title>
+<script src="utils.js" charset="utf-8" defer></script>
+<script src="loginManagement.js" charset="utf-8" defer></script>
+<link rel="stylesheet" type="text/css" media="all" href="CSS/mystyle.css" />
+</head>
+<body>
+	<h1>Welcome to the Bank</h1>
+
+	<form action="#">
+		Username: <input type="text" name="username" required> <br>
+		Password: <input type="password" name="pwd" required><br>
+		<input type="submit" value="LoginButton">
+		<p id = "errorMessageLogin"> <p>
+	</form>
+	
+	<form action="#">
+		Name: <input type="text" name="name" required><br>
+		Surname: <input type="text" name="surname" required><br>
+		Mail: <input type="email" name="mail" required><br>
+		Username: <input type="text" name="username" required><br>
+		Password: <input type="password" name="pwd" required><br>
+		RepeatPassword: <input type="password" name="repeatPwd" required><br>
+
+		<input type="submit" value="RegistrationButton">
+		<p id = "errorMessageRegistration"> <p>
+	</form>
+
+</body>
+</html>
