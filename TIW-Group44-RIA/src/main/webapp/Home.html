@@ -8,35 +8,88 @@
 </head>
 <body>
 	<div align="right">
-		<a th:href="@{/Logout}">Logout</a>
+		<a id="logout" href="@{/Logout}">Logout</a>
 	</div>
 	<!-- quale titolo mettere -->
 	<h1>Welcome to the your Account Home Page</h1>
 	<!-- vogliamo fare anche questo, se si dobbiamo aggiungere alla sessione tutto l'user e non solo l'id, o nel caso aggiungere le query -->
 	<p th:text="${'Nice to see you again ' + session.user.name + ' ' + session.user.surname + '. You are the client with the ID: ' + session.user.id}"></p>
-
-	<table>
-		<thead>
-			<tr>
-				<th>Id bank account</th>
-				<th>Balance</th>
-				<th>Link</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr th:each="ba : ${bankAccounts}">
-				<td th:text="${ba.id}">1</td>
-				<td th:text="${ba.balance}">450.31</td>
-				<td><a th:href="@{/AccountStatus(bankAccountid=${ba.id})}">Details</a></td>
-			</tr>
-		</tbody>
-	</table>
+	<div id="accountsList_id">
+		<table>
+			<thead>
+				<tr>
+					<th>Id bank account</th>
+					<th>Balance</th>
+					<th>Link</th>
+				</tr>
+			</thead>
+			<tbody id="accountsListBody_id"></tbody>
+		</table>
+		
+	</div>
+	
+	<div id="createAccount_id">
 	<form action="CreateBankAccount" method="POST">
 		Balance: <input type="number" name="balance" min="0" step="0.01" required><br>
 		
 		<input type="submit" value="Create">
-		<!-- cambiare nome errore -->
-		<p th:text=" ${errorMsgCreateBankAccount}"></p>
 	</form>
+	</div>
+	
+	<div id="transferList_id">
+		<table>
+			<thead>
+				<tr>
+					<th>Id transfer</th>
+					<th>Amount</th>
+					<th>Id Origin</th>
+					<th>Id destination</th>
+					<th>Date</th>
+					<th>Comments</th>
+				</tr>
+			</thead>
+			<tbody id="transferListBody_id"></tbody>
+		</table>
+	</div>
+	
+	<div id="transferForm_id">
+		<select id="addressBook_id"> </select>
+		<form action="CreateTransfer" method="POST">
+		
+			IdDestination: <input type="number" name="idDestination" min="0" required><br>
+			UserDestination: <input type="number" name="userDestination" min="0" required><br>
+			Amount: <input type="number" name="amount" min="0" step="0.01" required><br>
+			Comments: <input type="text" name="comments" required><br>
+			<input type="hidden" th:value="${bankAccount.id}" name="bankAccountidOrigin">
+
+			<input type="submit" value="Create">
+		</form>
+	</div>
+	
+	<div id="result_id">
+	<!-- TODO set all id -->
+		<div id="transferOK_id">
+			<h1>Transfer completed!</h1>
+			<p th:text="${'Transfer amount:' + amount}">Transfer amount: 999</p>
+			<br>
+			<!-- vogliamo fare anche questo, se si dobbiamo aggiungere alla sessione tutto l'user e non solo l'id, o nel caso aggiungere le query -->
+			<p th:text="${'Origin Account ID: ' + origin.id}">Origin Account ID: 1</p>
+			<p th:text="${'Origin Account Balance before transfer: ' + origin.balance}">Origin Account Balance before transfer: 1000</p>
+			<p th:text="${'Origin Account Balance after transfer: ' + balanceAfterOrigin}">Origin Account Balance after transfer: 1</p>
+			<br>
+			<p th:text="${'Destination Account ID: ' + destination.id}">Destination Account ID: 2</p>
+			<p th:text="${'Destination Account Balance before transfer: ' + destination.balance}">Destination Account Balance before transfer: 1</p>
+			<p th:text="${'Destination Account Balance after transfer: ' + balanceAfterDestination}">Destination Account Balance after transfer: 1000</p>
+			<button id="addContact_id" value="Add to Contact Book"> </button>
+		</div>
+		
+		<div id="transferKO_id">
+	
+			<h1>Transfer can't be done</h1>
+			<p th:text="${'The transfer is refused due to: ' + errorMsg}">The transfer is refused due to: I don't want</p>
+		
+		</div>
+	
+	</div>
 </body>
 </html>
