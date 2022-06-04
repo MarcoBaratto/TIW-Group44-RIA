@@ -32,9 +32,8 @@
               case 200:
               	var user = JSON.parse(req.responseText);
             	sessionStorage.setItem('username', user.username);
-            	sessionStorage.setItem('ID', user.ID);
-            	//TODO set correct path
-                window.location.href = "HomeCS.html";
+            	sessionStorage.setItem('ID', user.id);
+                window.location.href = "Home.html";
                 break;
               case 400: // bad request
                 document.getElementById(error).textContent = message;
