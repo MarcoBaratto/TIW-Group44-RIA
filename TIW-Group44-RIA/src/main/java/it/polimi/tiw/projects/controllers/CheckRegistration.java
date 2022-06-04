@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,16 +19,18 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
+import com.google.gson.Gson;
+
+import it.polimi.tiw.projects.beans.ThinUser;
 import it.polimi.tiw.projects.dao.UserDAO;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/CheckRegistration")
+@MultipartConfig
 public class CheckRegistration extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private Connection connection = null;
-
-	private TemplateEngine templateEngine;
 
 	public CheckRegistration() {
 		super();
@@ -35,12 +38,6 @@ public class CheckRegistration extends HttpServlet {
 
 	public void init() throws ServletException {
 		connection = ConnectionHandler.getConnection(getServletContext());
-		ServletContext servletContext = getServletContext();
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -48,60 +45,54 @@ public class CheckRegistration extends HttpServlet {
 	
 		String username = null, name = null, surname = null, mail = null, psw = null, repeatPsw = null;
 		
-			username = StringEscapeUtils.escapeJava(request.getParameter("username"));
-			name = StringEscapeUtils.escapeJava(request.getParameter("name"));
-			surname = StringEscapeUtils.escapeJava(request.getParameter("surname"));
-			mail = StringEscapeUtils.escapeJava(request.getParameter("mail"));
-			psw = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
-			repeatPsw = StringEscapeUtils.escapeJava(request.getParameter("repeatPwd"));
+		username = StringEscapeUtils.escapeJava(request.getParameter("username"));
+		name = StringEscapeUtils.escapeJava(request.getParameter("name"));
+		surname = StringEscapeUtils.escapeJava(request.getParameter("surname"));
+		mail = StringEscapeUtils.escapeJava(request.getParameter("mail"));
+		psw = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
+		repeatPsw = StringEscapeUtils.escapeJava(request.getParameter("repeatPwd"));
 			
-			String errorMsg = "";
+		String errorMsg = "";
 			
-			if(username == null || username.isEmpty() || name == null || name.isEmpty() || psw == null || psw.isEmpty()
-					|| repeatPsw == null || repeatPsw.isEmpty()|| mail == null || mail.isEmpty() 
-					|| surname == null || surname.isEmpty()) {
-				errorMsg = errorMsg + " Missing param";
-			}
-			
-			if(!psw.equals(repeatPsw))
-				errorMsg = errorMsg + " Passwords don't match";
-			
-			//parse mail
-			if(!patternMatches(mail))
-				errorMsg = errorMsg + " Incorrect mail format";
-			
-			UserDAO userDAO = new UserDAO(connection);
-			
-			try {
-			if(!userDAO.checkUniqueNickName(username))
-				errorMsg = errorMsg + " This nickname already exists";
-			}catch (SQLException e) {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to check Username's uniqueness");
-				return;
-			}
-			
-			if(errorMsg!="") {
-				String path;
-				ServletContext servletContext = getServletContext();
-				final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-				ctx.setVariable("errorMsgRegistration", errorMsg);
-				path = "/LoginRegistration.html";
-				templateEngine.process(path, ctx, response.getWriter());
-				return;
-			}
-			
-			try{
-				userDAO.createUser(username, psw, name, surname, mail);
-			}catch (SQLException e) {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create User");
-				return;
-			
+		if(username == null || username.isEmpty() || name == null || name.isEmpty() || psw == null || psw.isEmpty()
+				|| repeatPsw == null || repeatPsw.isEmpty()|| mail == null || mail.isEmpty() 
+				|| surname == null || surname.isEmpty()) {
+			errorMsg = errorMsg + " Missing param";
 		}
 			
-		// return the user to the right view
-		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/LoginRegistration.html";
-		response.sendRedirect(path);
+		if(!psw.equals(repeatPsw))
+			errorMsg = errorMsg + " Passwords don't match";
+		
+		//parse mail
+		if(!patternMatches(mail))
+			errorMsg = errorMsg + " Incorrect mail format";
+		
+		UserDAO userDAO = new UserDAO(connection);
+		
+		try {
+		if(!userDAO.checkUniqueNickName(username))
+			errorMsg = errorMsg + " This nickname already exists";
+		}catch (SQLException e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to check Username's uniqueness");
+			return;
+		}
+		
+		if(errorMsg!="") {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println(errorMsg);
+			return;
+		}
+		
+		try{
+			userDAO.createUser(username, psw, name, surname, mail);
+		}catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().println("Database Error");
+			return;	
+		}
+		
+		response.setStatus(HttpServletResponse.SC_OK);
+		response.getWriter().println("User created, you can Login now");
 	}
 	
 	

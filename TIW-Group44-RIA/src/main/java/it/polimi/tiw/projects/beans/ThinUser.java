@@ -4,8 +4,8 @@ public class ThinUser{
 	private final String username;
 	private final int id;
 	
-	public ThinUser(User u) {
-		this.username = u.getUsername();
-		this.id = u.getId();
+	public ThinUser(String username, int id) {
+		this.username = username;
+		this.id = id;
 	}
 }

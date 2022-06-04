@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel="stylesheet" type="text/css" media="all"
+	href="../CSS/mystyle.css" th:href="@{../CSS/mystyle.css}" />
+<meta charset="ISO-8859-1">
+<title>Home</title>
+</head>
+<body>
+	<div align="right">
+		<a th:href="@{/Logout}">Logout</a>
+	</div>
+	<!-- quale titolo mettere -->
+	<h1>Welcome to the your Account Home Page</h1>
+	<!-- vogliamo fare anche questo, se si dobbiamo aggiungere alla sessione tutto l'user e non solo l'id, o nel caso aggiungere le query -->
+	<p th:text="${'Nice to see you again ' + session.user.name + ' ' + session.user.surname + '. You are the client with the ID: ' + session.user.id}"></p>
+
+	<table>
+		<thead>
+			<tr>
+				<th>Id bank account</th>
+				<th>Balance</th>
+				<th>Link</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="ba : ${bankAccounts}">
+				<td th:text="${ba.id}">1</td>
+				<td th:text="${ba.balance}">450.31</td>
+				<td><a th:href="@{/AccountStatus(bankAccountid=${ba.id})}">Details</a></td>
+			</tr>
+		</tbody>
+	</table>
+	<form action="CreateBankAccount" method="POST">
+		Balance: <input type="number" name="balance" min="0" step="0.01" required><br>
+		
+		<input type="submit" value="Create">
+		<!-- cambiare nome errore -->
+		<p th:text=" ${errorMsgCreateBankAccount}"></p>
+	</form>
+</body>
+</html>
