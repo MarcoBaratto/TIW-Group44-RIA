@@ -13,7 +13,7 @@
 	<!-- quale titolo mettere -->
 	<h1>Welcome to the your Account Home Page</h1>
 	<!-- vogliamo fare anche questo, se si dobbiamo aggiungere alla sessione tutto l'user e non solo l'id, o nel caso aggiungere le query -->
-	<p th:text="${'Nice to see you again ' + session.user.name + ' ' + session.user.surname + '. You are the client with the ID: ' + session.user.id}"></p>
+	<p>Welcome <span id="username_id"></span> your ID is: <span id="user_id"></span></p>
 	<div id="accountsList_id">
 		<table>
 			<thead>
