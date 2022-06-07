@@ -16,7 +16,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import it.polimi.tiw.projects.beans.ThinUser;
+import it.polimi.tiw.projects.thinBeans.ThinUser;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.UserDAO;
 import it.polimi.tiw.projects.utils.ConnectionHandler;

@@ -1,7 +1,7 @@
 { // avoid variables ending up in the global scope
 
 	  // page components
-	  let trasferList, accountList, wizard,
+	  let transferList, accountList, wizard,
 	    pageOrchestrator = new PageOrchestrator(); // main controller
 
 	  window.addEventListener("load", () => {
@@ -24,7 +24,7 @@
 	  }
 	  */
 
-	  function accountList(_alert, _listcontainer, _listcontainerbody) {
+	  function AccountList(_alert, _listcontainer, _listcontainerbody) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
@@ -84,7 +84,86 @@
 	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
 	        anchor.addEventListener("click", (e) => {
 	          // dependency via module parameter
-	          accountDetails.show(e.target.getAttribute("accountid")); // the list must know the details container
+	          transferList.show(e.target.getAttribute("accountid")); // the list must know the details container
+	        }, false);
+	        anchor.href = "#";
+	        row.appendChild(linkcell);
+	        self.listcontainerbody.appendChild(row);
+	      });
+	      this.listcontainer.style.visibility = "visible";
+
+	    }
+
+	    this.autoclick = function(accountId) {
+	      var e = new Event("click");
+	      var selector = "a[accountid='" + accountId + "']";
+	      var anchorToClick =  // the first account or the account with id = accountId
+	        (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
+	      if (anchorToClick) anchorToClick.dispatchEvent(e);
+	    }
+	  }
+	  
+	  function TransferList(_alert, _listcontainer, _listcontainerbody) {
+	    this.alert = _alert;
+	    this.listcontainer = _listcontainer;
+	    this.listcontainerbody = _listcontainerbody;
+
+	    this.reset = function() {
+	      this.listcontainer.style.visibility = "hidden";
+	    }
+
+	    this.show = function(next) {
+	      var self = this;
+	      makeCall("GET", "GetAccountsData", null,
+	        function(req) {
+	          if (req.readyState == 4) {
+	            var message = req.responseText;
+	            if (req.status == 200) {
+	              var accountsToShow = JSON.parse(req.responseText);
+	              if (accountsToShow.length == 0) {
+	                self.alert.textContent = "No accounts yet, please create a new one";
+	                return;
+	              }
+	              self.update(accountsToShow); // self visible by closure
+	              //TODO capire se serve
+	              //if (next) next(); // show the default element of the list if present
+	            
+	          } else if (req.status == 403) {
+                  window.location.href = req.getResponseHeader("Location");
+                  window.sessionStorage.removeItem('username');
+                  window.sessionStorage.removeItem('ID');
+                  }
+                  else {
+	            self.alert.textContent = message;
+	          }}
+	        }
+	      );
+	    };
+
+
+	    this.update = function(arrayAccounts) {
+	      var elem, i, row, destcell, datecell, linkcell, anchor;
+	      this.listcontainerbody.innerHTML = ""; // empty the table body
+	      // build updated list
+	      var self = this;
+	      arrayAccounts.forEach(function(account) { // self visible here, not this
+	        row = document.createElement("tr");
+	        destcell = document.createElement("td");
+	        destcell.textContent = account.id;
+	        row.appendChild(destcell);
+	        datecell = document.createElement("td");
+	        datecell.textContent = account.balance;
+	        row.appendChild(datecell);
+	        linkcell = document.createElement("td");
+	        anchor = document.createElement("a");
+	        linkcell.appendChild(anchor);
+	        linkText = document.createTextNode("Show");
+	        anchor.appendChild(linkText);
+	        //anchor.missionid = mission.id; // make list item clickable
+	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
+	        anchor.addEventListener("click", (e) => {
+	          // dependency via module parameter
+	          trasferList.show(e.target.getAttribute("accountid")); // the list must know the details container
 	        }, false);
 	        anchor.href = "#";
 	        row.appendChild(linkcell);
@@ -102,10 +181,10 @@
 	        (missionId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
 	      if (anchorToClick) anchorToClick.dispatchEvent(e);
 	    }
-
+*/
 	  }
-	  */
 
+/*
 	  function accountDetails(options) {
 	    this.alert = options['alert'];
 	    this.detailcontainer = options['detailcontainer'];
@@ -323,6 +402,7 @@
 	      destination.hidden = false;
 	    }
 	  }
+*/	  
 
 	  function PageOrchestrator() {
 	    var alertContainer = document.getElementById("id_alert");
@@ -332,10 +412,16 @@
 	        document.getElementById("id_username"));
 	      personalMessage.show();
 
-	      missionsList = new MissionsList(
+	      accountList = new AccountList(
 	        alertContainer,
 	        document.getElementById("accountsList_id"),
 	        document.getElementById("accountsListBody_id"));
+	        
+	      transferList = new TransferList(
+	        alertContainer,
+	        document.getElementById("transferList_id"),
+	        document.getElementById("transferListBody_id"));  
+	        
 
 	      missionDetails = new MissionDetails({ // many parameters, wrap them in an
 	        // object
@@ -376,4 +462,4 @@
 	      wizard.reset();
 	    };
 	  }
-	};
+};

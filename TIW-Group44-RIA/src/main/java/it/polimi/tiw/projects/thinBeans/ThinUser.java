@@ -1,4 +1,4 @@
-package it.polimi.tiw.projects.beans;
+package it.polimi.tiw.projects.thinBeans;
 
 public class ThinUser{
 	private final String username;
@@ -7,5 +7,13 @@ public class ThinUser{
 	public ThinUser(String username, int id) {
 		this.username = username;
 		this.id = id;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public int getId() {
+		return id;
 	}
 }
