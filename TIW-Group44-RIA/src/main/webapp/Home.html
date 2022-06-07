@@ -14,6 +14,7 @@
 	<h1>Welcome to the your Account Home Page</h1>
 	<!-- vogliamo fare anche questo, se si dobbiamo aggiungere alla sessione tutto l'user e non solo l'id, o nel caso aggiungere le query -->
 	<p th:text="${'Nice to see you again ' + session.user.name + ' ' + session.user.surname + '. You are the client with the ID: ' + session.user.id}"></p>
+	<div id="id_alert" class="alertmessage"></div>
 	<div id="accountsList_id">
 		<table>
 			<thead>
