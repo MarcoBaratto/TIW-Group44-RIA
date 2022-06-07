@@ -46,8 +46,7 @@
 	                return;
 	              }
 	              self.update(accountsToShow); // self visible by closure
-	              //TODO capire se serve
-	              //if (next) next(); // show the default element of the list if present
+	              if (next) next(); // show the default element of the list if present
 	            
 	          } else if (req.status == 403) {
                   window.location.href = req.getResponseHeader("Location");
@@ -63,7 +62,7 @@
 
 
 	    this.update = function(arrayAccounts) {
-	      var elem, i, row, destcell, datecell, linkcell, anchor;
+	      var row, destcell, datecell, linkcell, anchor;
 	      this.listcontainerbody.innerHTML = ""; // empty the table body
 	      // build updated list
 	      var self = this;
@@ -112,20 +111,19 @@
 	      this.listcontainer.style.visibility = "hidden";
 	    }
 
-	    this.show = function(next) {
+	    this.show = function(accountId) {
 	      var self = this;
-	      makeCall("GET", "GetAccountsData", null,
+	      makeCall("GET", "GetTransfersData?bankAccountid=" + accountId, null,
 	        function(req) {
 	          if (req.readyState == 4) {
 	            var message = req.responseText;
 	            if (req.status == 200) {
-	              var accountsToShow = JSON.parse(req.responseText);
-	              if (accountsToShow.length == 0) {
-	                self.alert.textContent = "No accounts yet, please create a new one";
+	              var transfersToShow = JSON.parse(req.responseText);
+	              if (transfersToShow.length == 0) {
+	                self.alert.textContent = "No transfers yet!";
 	                return;
 	              }
-	              self.update(accountsToShow); // self visible by closure
-	              //TODO capire se serve
+	              self.update(transfersToShow); // self visible by closure
 	              //if (next) next(); // show the default element of the list if present
 	            
 	          } else if (req.status == 403) {
@@ -141,47 +139,36 @@
 	    };
 
 
-	    this.update = function(arrayAccounts) {
-	      var elem, i, row, destcell, datecell, linkcell, anchor;
+	    this.update = function(arrayTransfers) {
+	      var row, idTransferCell, amountCell, originCell, destinationCell, dateCell, commentsCell;
 	      this.listcontainerbody.innerHTML = ""; // empty the table body
 	      // build updated list
 	      var self = this;
-	      arrayAccounts.forEach(function(account) { // self visible here, not this
+	      arrayTransfers.forEach(function(transfer) { // self visible here, not this
 	        row = document.createElement("tr");
-	        destcell = document.createElement("td");
-	        destcell.textContent = account.id;
-	        row.appendChild(destcell);
-	        datecell = document.createElement("td");
-	        datecell.textContent = account.balance;
-	        row.appendChild(datecell);
-	        linkcell = document.createElement("td");
-	        anchor = document.createElement("a");
-	        linkcell.appendChild(anchor);
-	        linkText = document.createTextNode("Show");
-	        anchor.appendChild(linkText);
-	        //anchor.missionid = mission.id; // make list item clickable
-	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
-	        anchor.addEventListener("click", (e) => {
-	          // dependency via module parameter
-	          trasferList.show(e.target.getAttribute("accountid")); // the list must know the details container
-	        }, false);
-	        anchor.href = "#";
-	        row.appendChild(linkcell);
+	        idTransferCell = document.createElement("td");
+	        idTransferCell.textContent = transfer.id;
+	        row.appendChild(idTransferCell);
+	        amountCell = document.createElement("td");
+	        amountCell.textContent = transfer.amount;
+	        row.appendChild(amountCell);
+	        originCell = document.createElement("td");
+	        originCell.textContent = transfer.idBankAccountFrom;	        
+	        row.appendChild(originCell);
+	        destinationCell = document.createElement("td");
+	        destinationCell.textContent = transfer.idBankAccountTo;	        
+	        row.appendChild(destinationCell);
+	        dateCell = document.createElement("td");
+	        dateCell.textContent = transfer.date;	        
+	        row.appendChild(dateCell);
+	        commentsCell = document.createElement("td");
+	        commentsCell.textContent = transfer.comments;	        
+	        row.appendChild(commentsCell);
 	        self.listcontainerbody.appendChild(row);
 	      });
 	      this.listcontainer.style.visibility = "visible";
 
 	    }
-
-/*
-	    this.autoclick = function(missionId) {
-	      var e = new Event("click");
-	      var selector = "a[missionid='" + missionId + "']";
-	      var anchorToClick =  // the first mission or the mission with id = missionId
-	        (missionId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
-	      if (anchorToClick) anchorToClick.dispatchEvent(e);
-	    }
-*/
 	  }
 
 /*
@@ -408,9 +395,12 @@
 	    var alertContainer = document.getElementById("id_alert");
 	    
 	    this.start = function() {
+		//TODO settare il messaggio di benvenuto
+		/*
 	      personalMessage = new PersonalMessage(sessionStorage.getItem('username'),
 	        document.getElementById("id_username"));
 	      personalMessage.show();
+	      */
 
 	      accountList = new AccountList(
 	        alertContainer,
@@ -422,7 +412,7 @@
 	        document.getElementById("transferList_id"),
 	        document.getElementById("transferListBody_id"));  
 	        
-
+/*
 	      missionDetails = new MissionDetails({ // many parameters, wrap them in an
 	        // object
 	        alert: alertContainer,
@@ -450,16 +440,17 @@
 	      document.querySelector("a[href='Logout']").addEventListener('click', () => {
 	        window.sessionStorage.removeItem('username');
 	      })
+	      	    */
 	    };
 
-	    this.refresh = function(currentMission) { // currentMission initially null at start
+	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
-	      missionsList.reset();
-	      missionDetails.reset();
-	      missionsList.show(function() {
-	        missionsList.autoclick(currentMission); 
+	      accountList.reset();
+	      //missionDetails.reset();
+	      accountList.show(function() {
+	        accountList.autoclick(currentAccount); 
 	      }); // closure preserves visibility of this
-	      wizard.reset();
+	      //wizard.reset();
 	    };
 	  }
 };

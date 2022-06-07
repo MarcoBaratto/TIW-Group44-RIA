@@ -11,7 +11,7 @@
   </context-param>
   <context-param>
     <param-name>dbPassword</param-name>
-    <param-value>marco</param-value>
+    <param-value>tiwp</param-value>
   </context-param>
   <context-param>
     <param-name>dbDriver</param-name>
