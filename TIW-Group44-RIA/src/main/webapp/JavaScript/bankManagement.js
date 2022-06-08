@@ -227,6 +227,10 @@
 	        document.getElementById("transferList_id"),
 	        document.getElementById("transferListBody_id"));  
 	        
+	      document.querySelector("a[href='Logout']").addEventListener('click', () => {
+	        window.sessionStorage.removeItem('username');
+	        window.sessionStorage.removeItem('ID');
+	      })  
 /*
 	      missionDetails = new MissionDetails({ // many parameters, wrap them in an
 	        // object
