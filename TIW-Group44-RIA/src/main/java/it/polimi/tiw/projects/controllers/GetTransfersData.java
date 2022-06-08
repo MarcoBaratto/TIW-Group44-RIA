@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,10 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import it.polimi.tiw.projects.beans.User;
-import it.polimi.tiw.projects.beans.BankAccount;
 import it.polimi.tiw.projects.beans.Transfer;
 import it.polimi.tiw.projects.dao.TransferDAO;
-import it.polimi.tiw.projects.thinBeans.ThinBankAccount;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
