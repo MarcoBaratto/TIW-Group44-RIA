@@ -118,6 +118,7 @@
 	          if (req.readyState == 4) {
 	            var message = req.responseText;
 	            if (req.status == 200) {
+				  document.getElementById("originAccount_id").value=accountId;
 	              var transfersToShow = JSON.parse(req.responseText);
 	              if (transfersToShow.length == 0) {
 	                self.alert.textContent = "No transfers yet!";
@@ -171,238 +172,52 @@
 	    }
 	  }
 
-/*
-	  function accountDetails(options) {
-	    this.alert = options['alert'];
-	    this.detailcontainer = options['detailcontainer'];
-	    this.expensecontainer = options['expensecontainer'];
-	    this.expenseform = options['expenseform'];
-	    this.closeform = options['closeform'];
-	    this.date = options['date'];
-	    this.destination = options['destination'];
-	    this.status = options['status'];
-	    this.description = options['description'];
-	    this.country = options['country'];
-	    this.province = options['province'];
-	    this.city = options['city'];
-	    this.fund = options['fund'];
-	    this.food = options['food'];
-	    this.accomodation = options['accomodation'];
-	    this.travel = options['transportation'];
+	  function CreateTransferForm(pageOrchestrator){
+		  var transferForm = document.getElementById("createTransferForm_id");
+		  var userDestination = transferForm.querySelector("input[name='userDestination']");
+		  var accountDestination = transferForm.querySelector("input[name='accountDestination']");
+		  var amount = transferForm.querySelector("input[name='amount']");
+		  var comments = transferForm.querySelector("input[name='comments']");
+		  var originAccount = transferForm.querySelector("input[name='originAccount']");
 
-	    this.registerEvents = function(orchestrator) {
-	      this.expenseform.querySelector("input[type='button']").addEventListener('click', (e) => {
-	        var form = e.target.closest("form");
-	        if (form.checkValidity()) {
-	          var self = this,
-	            missionToReport = form.querySelector("input[type = 'hidden']").value;
-	          makeCall("POST", 'CreateExpensesReport', form,
-	            function(req) {
-	              if (req.readyState == 4) {
-	                var message = req.responseText;
-	                if (req.status == 200) {
-	                  orchestrator.refresh(missionToReport);
-	                } else if (req.status == 403) {
-                  window.location.href = req.getResponseHeader("Location");
-                  window.sessionStorage.removeItem('username');
-                  }
-                  else {
-	                  self.alert.textContent = message;
-	                }
-	              }
-	            }
-	          );
-	        } else {
-	          form.reportValidity();
-	        }
-	      });
+		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
+			  if(transferForm.checkValidity()){
+				  if(originAccount.value === accountDestination) {
+					  transferForm.reset();
+					  transferForm.showFailure("Origin account and destination can't be the same");
+					  //can't check balance-amount because the value could be outdated
+					  return;
+				  }
+				  var self = this;
+				  makeCall("POST", "CreateTransfer", transferForm,
+					  function (x){
+						  if (x.readyState == XMLHttpRequest.DONE) {
+							  var message = x.responseText;
+							  var errorField = document.getElementById("createTransferError");
+							  switch (x.status) {
+								  case 200:
+									  pageOrchestrator.showSuccess(JSON.parse(message));
+									  break;
+								  default:
+									  pageOrchestrator.showFailure(message);
+							  }
+						  }
+					  });
+			  }
+		  })
 
-	      this.closeform.querySelector("input[type='button']").addEventListener('click', (event) => {
-	        var self = this,
-	          form = event.target.closest("form"),
-	          missionToClose = form.querySelector("input[type = 'hidden']").value;
-	        makeCall("POST", 'CloseMission', form,
-	          function(req) {
-	            if (req.readyState == 4) {
-	              var message = req.responseText;
-	              if (req.status == 200) {
-	                orchestrator.refresh(missionToClose);
-	              } else if (req.status == 403) {
-                  	window.location.href = req.getResponseHeader("Location");
-                  	window.sessionStorage.removeItem('username');
-                  }
-                  else {
-	                self.alert.textContent = message;
-	              }
-	            }
-	          }
-	        );
-	      });
-	    }
-
-	    this.show = function(missionid) {
-	      var self = this;
-	      makeCall("GET", "GetMissionDetailsData?missionid=" + missionid, null,
-	        function(req) {
-	          if (req.readyState == 4) {
-	            var message = req.responseText;
-	            if (req.status == 200) {
-	              var mission = JSON.parse(req.responseText);
-	              self.update(mission); // self is the object on which the function
-	              // is applied
-	              self.detailcontainer.style.visibility = "visible";
-	              switch (mission.status) {
-	                case "OPEN":
-	                  self.expensecontainer.style.visibility = "hidden";
-	                  self.expenseform.style.visibility = "visible";
-	                  self.expenseform.missionid.value = mission.id;
-	                  self.closeform.style.visibility = "hidden";
-	                  break;
-	                case "REPORTED":
-	                  self.expensecontainer.style.visibility = "visible";
-	                  self.expenseform.style.visibility = "hidden";
-	                  self.closeform.missionid.value = mission.id;
-	                  self.closeform.style.visibility = "visible";
-	                  break;
-	                case "CLOSED":
-	                  self.expensecontainer.style.visibility = "visible";
-	                  self.expenseform.style.visibility = "hidden";
-	                  self.closeform.style.visibility = "hidden";
-	                  break;
-	              }
-	            } else if (req.status == 403) {
-                  window.location.href = req.getResponseHeader("Location");
-                  window.sessionStorage.removeItem('username');
-                  }
-                  else {
-	              self.alert.textContent = message;
-
-	            }
-	          }
-	        }
-	      );
-	    };
-
-	    this.reset = function() {
-	      this.detailcontainer.style.visibility = "hidden";
-	      this.expensecontainer.style.visibility = "hidden";
-	      this.expenseform.style.visibility = "hidden";
-	      this.closeform.style.visibility = "hidden";
-	    }
-
-	    this.update = function(m) {
-	      this.date.textContent = m.startDate;
-	      this.destination.textContent = m.destination;
-	      this.status.textContent = m.status;
-	      this.description.textContent = m.description;
-	      this.country.textContent = m.country;
-	      this.province.textContent = m.province;
-	      this.city.textContent = m.city;
-	      this.fund.textContent = m.fund;
-	      this.food.textContent = m.expenses.food;
-	      this.accomodation.textContent = m.expenses.accomodation;
-	      this.travel.textContent = m.expenses.transportation;
-	    }
 	  }
 
-	  function Wizard(wizardId, alert) {
-	    // minimum date the user can choose, in this case now and in the future
-	    var now = new Date(),
-	      formattedDate = now.toISOString().substring(0, 10);
-	    this.wizard = wizardId;
-	    this.alert = alert;
 
-	    this.wizard.querySelector('input[type="date"]').setAttribute("min", formattedDate);
-
-	    this.registerEvents = function(orchestrator) {
-	      // Manage previous and next buttons
-	      Array.from(this.wizard.querySelectorAll("input[type='button'].next,  input[type='button'].prev")).forEach(b => {
-	        b.addEventListener("click", (e) => { // arrow function preserve the
-	          // visibility of this
-	          var eventfieldset = e.target.closest("fieldset"),
-	            valid = true;
-	          if (e.target.className == "next") {
-	            for (i = 0; i < eventfieldset.elements.length; i++) {
-	              if (!eventfieldset.elements[i].checkValidity()) {
-	                eventfieldset.elements[i].reportValidity();
-	                valid = false;
-	                break;
-	              }
-	            }
-	          }
-	          if (valid) {
-	            this.changeStep(e.target.parentNode, (e.target.className === "next") ? e.target.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
-	          }
-	        }, false);
-	      });
-
-	      // Manage submit button
-	      this.wizard.querySelector("input[type='button'].submit").addEventListener('click', (e) => {
-	        var eventfieldset = e.target.closest("fieldset"),
-	          valid = true;
-	        for (i = 0; i < eventfieldset.elements.length; i++) {
-	          if (!eventfieldset.elements[i].checkValidity()) {
-	            eventfieldset.elements[i].reportValidity();
-	            valid = false;
-	            break;
-	          }
-	        }
-
-	        if (valid) {
-	          var self = this;
-	          makeCall("POST", 'CreateMission', e.target.closest("form"),
-	            function(req) {
-	              if (req.readyState == XMLHttpRequest.DONE) {
-	                var message = req.responseText; // error message or mission id
-	                if (req.status == 200) {
-	                  orchestrator.refresh(message); // id of the new mission passed
-	                } else if (req.status == 403) {
-                      window.location.href = req.getResponseHeader("Location");
-                      window.sessionStorage.removeItem('username');
-                  }
-                  else {
-	                  self.alert.textContent = message;
-	                  self.reset();
-	                }
-	              }
-	            }
-	          );
-	        }
-	      });
-	      // Manage cancel button
-	      this.wizard.querySelector("input[type='button'].cancel").addEventListener('click', (e) => {
-	        e.target.closest('form').reset();
-	        this.reset();
-	      });
-	    };
-
-	    this.reset = function() {
-	      var fieldsets = document.querySelectorAll("#" + this.wizard.id + " fieldset");
-	      fieldsets[0].hidden = false;
-	      fieldsets[1].hidden = true;
-	      fieldsets[2].hidden = true;
-
-	    }
-
-	    this.changeStep = function(origin, destination) {
-	      origin.hidden = true;
-	      destination.hidden = false;
-	    }
-	  }
-*/	  
 
 	  function PageOrchestrator() {
 	    var alertContainer = document.getElementById("id_alert");
 	    
 	    this.start = function() {
-		//TODO settare il messaggio di benvenuto
-		/*
-	      personalMessage = new PersonalMessage(sessionStorage.getItem('username'),
-	        document.getElementById("id_username"));
-	      personalMessage.show();
-	      */
+			document.getElementById("username_id").textContent= sessionStorage.getItem('username');
+		  document.getElementById("user_id").textContent= sessionStorage.getItem('ID');
 
-	      accountList = new AccountList(
+		  accountList = new AccountList(
 	        alertContainer,
 	        document.getElementById("accountsList_id"),
 	        document.getElementById("accountsListBody_id"));
@@ -443,6 +258,8 @@
 	      	    */
 	    };
 
+		this.createTransferForm = CreateTransferForm(this);
+
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
 	      accountList.reset();
@@ -452,5 +269,234 @@
 	      }); // closure preserves visibility of this
 	      //wizard.reset();
 	    };
+
+		this.showSuccess = function (transfer){
+
+		}
+		this.showFailure = function (message){
+
+		}
 	  }
+
+
+
+	/*
+    function accountDetails(options) {
+      this.alert = options['alert'];
+      this.detailcontainer = options['detailcontainer'];
+      this.expensecontainer = options['expensecontainer'];
+      this.expenseform = options['expenseform'];
+      this.closeform = options['closeform'];
+      this.date = options['date'];
+      this.destination = options['destination'];
+      this.status = options['status'];
+      this.description = options['description'];
+      this.country = options['country'];
+      this.province = options['province'];
+      this.city = options['city'];
+      this.fund = options['fund'];
+      this.food = options['food'];
+      this.accomodation = options['accomodation'];
+      this.travel = options['transportation'];
+
+      this.registerEvents = function(orchestrator) {
+        this.expenseform.querySelector("input[type='button']").addEventListener('click', (e) => {
+          var form = e.target.closest("form");
+          if (form.checkValidity()) {
+            var self = this,
+              missionToReport = form.querySelector("input[type = 'hidden']").value;
+            makeCall("POST", 'CreateExpensesReport', form,
+              function(req) {
+                if (req.readyState == 4) {
+                  var message = req.responseText;
+                  if (req.status == 200) {
+                    orchestrator.refresh(missionToReport);
+                  } else if (req.status == 403) {
+                window.location.href = req.getResponseHeader("Location");
+                window.sessionStorage.removeItem('username');
+                }
+                else {
+                    self.alert.textContent = message;
+                  }
+                }
+              }
+            );
+          } else {
+            form.reportValidity();
+          }
+        });
+
+        this.closeform.querySelector("input[type='button']").addEventListener('click', (event) => {
+          var self = this,
+            form = event.target.closest("form"),
+            missionToClose = form.querySelector("input[type = 'hidden']").value;
+          makeCall("POST", 'CloseMission', form,
+            function(req) {
+              if (req.readyState == 4) {
+                var message = req.responseText;
+                if (req.status == 200) {
+                  orchestrator.refresh(missionToClose);
+                } else if (req.status == 403) {
+                    window.location.href = req.getResponseHeader("Location");
+                    window.sessionStorage.removeItem('username');
+                }
+                else {
+                  self.alert.textContent = message;
+                }
+              }
+            }
+          );
+        });
+      }
+
+      this.show = function(missionid) {
+        var self = this;
+        makeCall("GET", "GetMissionDetailsData?missionid=" + missionid, null,
+          function(req) {
+            if (req.readyState == 4) {
+              var message = req.responseText;
+              if (req.status == 200) {
+                var mission = JSON.parse(req.responseText);
+                self.update(mission); // self is the object on which the function
+                // is applied
+                self.detailcontainer.style.visibility = "visible";
+                switch (mission.status) {
+                  case "OPEN":
+                    self.expensecontainer.style.visibility = "hidden";
+                    self.expenseform.style.visibility = "visible";
+                    self.expenseform.missionid.value = mission.id;
+                    self.closeform.style.visibility = "hidden";
+                    break;
+                  case "REPORTED":
+                    self.expensecontainer.style.visibility = "visible";
+                    self.expenseform.style.visibility = "hidden";
+                    self.closeform.missionid.value = mission.id;
+                    self.closeform.style.visibility = "visible";
+                    break;
+                  case "CLOSED":
+                    self.expensecontainer.style.visibility = "visible";
+                    self.expenseform.style.visibility = "hidden";
+                    self.closeform.style.visibility = "hidden";
+                    break;
+                }
+              } else if (req.status == 403) {
+                window.location.href = req.getResponseHeader("Location");
+                window.sessionStorage.removeItem('username');
+                }
+                else {
+                self.alert.textContent = message;
+
+              }
+            }
+          }
+        );
+      };
+
+      this.reset = function() {
+        this.detailcontainer.style.visibility = "hidden";
+        this.expensecontainer.style.visibility = "hidden";
+        this.expenseform.style.visibility = "hidden";
+        this.closeform.style.visibility = "hidden";
+      }
+
+      this.update = function(m) {
+        this.date.textContent = m.startDate;
+        this.destination.textContent = m.destination;
+        this.status.textContent = m.status;
+        this.description.textContent = m.description;
+        this.country.textContent = m.country;
+        this.province.textContent = m.province;
+        this.city.textContent = m.city;
+        this.fund.textContent = m.fund;
+        this.food.textContent = m.expenses.food;
+        this.accomodation.textContent = m.expenses.accomodation;
+        this.travel.textContent = m.expenses.transportation;
+      }
+    }
+
+    function Wizard(wizardId, alert) {
+      // minimum date the user can choose, in this case now and in the future
+      var now = new Date(),
+        formattedDate = now.toISOString().substring(0, 10);
+      this.wizard = wizardId;
+      this.alert = alert;
+
+      this.wizard.querySelector('input[type="date"]').setAttribute("min", formattedDate);
+
+      this.registerEvents = function(orchestrator) {
+        // Manage previous and next buttons
+        Array.from(this.wizard.querySelectorAll("input[type='button'].next,  input[type='button'].prev")).forEach(b => {
+          b.addEventListener("click", (e) => { // arrow function preserve the
+            // visibility of this
+            var eventfieldset = e.target.closest("fieldset"),
+              valid = true;
+            if (e.target.className == "next") {
+              for (i = 0; i < eventfieldset.elements.length; i++) {
+                if (!eventfieldset.elements[i].checkValidity()) {
+                  eventfieldset.elements[i].reportValidity();
+                  valid = false;
+                  break;
+                }
+              }
+            }
+            if (valid) {
+              this.changeStep(e.target.parentNode, (e.target.className === "next") ? e.target.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
+            }
+          }, false);
+        });
+
+        // Manage submit button
+        this.wizard.querySelector("input[type='button'].submit").addEventListener('click', (e) => {
+          var eventfieldset = e.target.closest("fieldset"),
+            valid = true;
+          for (i = 0; i < eventfieldset.elements.length; i++) {
+            if (!eventfieldset.elements[i].checkValidity()) {
+              eventfieldset.elements[i].reportValidity();
+              valid = false;
+              break;
+            }
+          }
+
+          if (valid) {
+            var self = this;
+            makeCall("POST", 'CreateMission', e.target.closest("form"),
+              function(req) {
+                if (req.readyState == XMLHttpRequest.DONE) {
+                  var message = req.responseText; // error message or mission id
+                  if (req.status == 200) {
+                    orchestrator.refresh(message); // id of the new mission passed
+                  } else if (req.status == 403) {
+                    window.location.href = req.getResponseHeader("Location");
+                    window.sessionStorage.removeItem('username');
+                }
+                else {
+                    self.alert.textContent = message;
+                    self.reset();
+                  }
+                }
+              }
+            );
+          }
+        });
+        // Manage cancel button
+        this.wizard.querySelector("input[type='button'].cancel").addEventListener('click', (e) => {
+          e.target.closest('form').reset();
+          this.reset();
+        });
+      };
+
+      this.reset = function() {
+        var fieldsets = document.querySelectorAll("#" + this.wizard.id + " fieldset");
+        fieldsets[0].hidden = false;
+        fieldsets[1].hidden = true;
+        fieldsets[2].hidden = true;
+
+      }
+
+      this.changeStep = function(origin, destination) {
+        origin.hidden = true;
+        destination.hidden = false;
+      }
+    }
+*/
 };

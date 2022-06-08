@@ -28,3 +28,5 @@ local.properties
 # Locally stored "Eclipse launch configurations"
 *.launch
 /build/
+/.idea/
+/TIW-Group44-RIA.iml

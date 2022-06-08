@@ -28,16 +28,14 @@
 			</thead>
 			<tbody id="accountsListBody_id"></tbody>
 		</table>
-		
+
+		<form id = "createAccount_id" action="#">
+			Balance: <input type="number" name="balance" min="0" step="0.01" required><br>
+
+			<input type="submit" value="Create">
+		</form>
 	</div>
-	
-	<div id="createAccount_id">
-	<form action="CreateBankAccount" method="POST">
-		Balance: <input type="number" name="balance" min="0" step="0.01" required><br>
-		
-		<input type="submit" value="Create">
-	</form>
-	</div>
+
 	
 	<div id="transferList_id">
 		<table>
@@ -62,19 +60,19 @@
 				</tr>
 			</tbody>
 		</table>
-	</div>
-	
-	<div id="transferForm_id">
+
 		<select id="addressBook_id"> </select>
-		<form action="CreateTransfer" method="POST">
-		
-			IdDestination: <input type="number" name="idDestination" min="0" required><br>
-			UserDestination: <input type="number" name="userDestination" min="0" required><br>
+		<form id = "createTransferForm_id" action="#">
+
+			UserDestination: <input type="number" name="userDestination" min="0" required> <datalist id="userContacts_id"> </datalist> <br>
+			IdDestination: <input type="number" name="idDestination" min="0" required> <datalist id="accountContacts_id"> </datalist> <br>
+
 			Amount: <input type="number" name="amount" min="0" step="0.01" required><br>
 			Comments: <input type="text" name="comments" required><br>
-			<input type="hidden" th:value="${bankAccount.id}" name="bankAccountidOrigin">
 
-			<input type="submit" value="Create">
+			<input id="originAccount_id" type="hidden" name="originAccount">
+			<input id="createTransferButton_id" type="submit" value="Create">
+			<p id="createTransferError"> </p>
 		</form>
 	</div>
 	

@@ -21,13 +21,13 @@ public class AddressBook {
 		this.ownerId = ownerId;
 	}
 	
-	public void addContact(int ownerId, int accountId) {
-		if(contacts.containsKey(ownerId)) {
-			contacts.get(ownerId).add(accountId);
+	public void addContact(int contactId, int accountId) {
+		if(contacts.containsKey(contactId)) {
+			contacts.get(contactId).add(accountId);
 		}else {
 			Set<Integer> set = new HashSet<>();
 			set.add(accountId);
-			contacts.put(ownerId, set);
+			contacts.put(contactId, set);
 		}
 
 	}	
