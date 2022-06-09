@@ -63,11 +63,11 @@
 		
 		<form id = "createTransferForm_id" action="#">
 
-			UserDestination: <input type="number" name="userDestination" min="0" required> <datalist id="userContacts_id"> </datalist> <br>
-			IdDestination: <input type="number" name="idDestination" min="0" required> <datalist id="accountContacts_id"> </datalist> <br>
+			UserDestination: <input type="number" name="userDestination" id="userDestination" min="0" required> <datalist id="userContacts_id"> </datalist> <br>
+			IdDestination: <input type="number" name="idDestination" id ="idDestination" min="0" required> <datalist id="accountContacts_id"> </datalist> <br>
 
-			Amount: <input type="number" name="amount" min="0" step="0.01" required><br>
-			Comments: <input type="text" name="comments" required><br>
+			Amount: <input type="number" name="amount" id = "amount" min="0" step="0.01" required><br>
+			Comments: <input type="text" name="comments" id= "comments" required><br>
 
 			<input id="originAccount_id" type="hidden" name="bankAccountidOrigin">
 			<input id="createTransferButton_id" type="submit" value="Create">

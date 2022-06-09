@@ -85,7 +85,7 @@
 	        anchor.addEventListener("click", (e) => {
 	          // dependency via module parameter
 	          transferList.show(e.target.getAttribute("accountid")); // the list must know the details container
-	          inputAccountIdOrigin.value = e.target.getAttribute("accountid");
+	          //inputAccountIdOrigin.value = e.target.getAttribute("accountid");
 	        }, false);
 	        anchor.href = "#";
 	        row.appendChild(linkcell);
@@ -176,11 +176,8 @@
 
 	  function CreateTransferForm(pageOrchestrator){
 		  var transferForm = document.getElementById("createTransferForm_id");
-		  var userDestination = transferForm.querySelector("input[name='userDestination']");
-		  var accountDestination = transferForm.querySelector("input[name='accountDestination']");
-		  var amount = transferForm.querySelector("input[name='amount']");
-		  var comments = transferForm.querySelector("input[name='comments']");
-		  var originAccount = transferForm.querySelector("input[name='originAccount']");
+		  var accountDestination = document.getElementById("idDestination");
+		  var originAccount = document.getElementById("originAccount_id");
 
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  if(transferForm.checkValidity()){
@@ -222,7 +219,7 @@
 	        alertContainer,
 	        document.getElementById("accountsList_id"),
 	        document.getElementById("accountsListBody_id"),
-	        transferForm.querySelector("input[name='originAccount']"));
+	        document.getElementById("createTransferForm_id").querySelector("input[name='originAccount']"));
 	        
 	      transferList = new TransferList(
 	        alertContainer,
