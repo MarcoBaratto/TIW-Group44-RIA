@@ -60,8 +60,7 @@
 				</tr>
 			</tbody>
 		</table>
-
-		<select id="addressBook_id"> </select>
+		
 		<form id = "createTransferForm_id" action="#">
 
 			UserDestination: <input type="number" name="userDestination" min="0" required> <datalist id="userContacts_id"> </datalist> <br>
@@ -70,9 +69,8 @@
 			Amount: <input type="number" name="amount" min="0" step="0.01" required><br>
 			Comments: <input type="text" name="comments" required><br>
 
-			<input id="originAccount_id" type="hidden" name="originAccount">
+			<input id="originAccount_id" type="hidden" name="bankAccountidOrigin">
 			<input id="createTransferButton_id" type="submit" value="Create">
-			<p id="createTransferError"> </p>
 		</form>
 	</div>
 	

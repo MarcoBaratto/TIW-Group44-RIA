@@ -24,10 +24,11 @@
 	  }
 	  */
 
-	  function AccountList(_alert, _listcontainer, _listcontainerbody) {
+	  function AccountList(_alert, _listcontainer, _listcontainerbody, _inputAccountIdOrigin) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
+	    this.inputAccountIdOrigin = _inputAccountIdOrigin;
 
 	    this.reset = function() {
 	      this.listcontainer.style.visibility = "hidden";
@@ -84,13 +85,14 @@
 	        anchor.addEventListener("click", (e) => {
 	          // dependency via module parameter
 	          transferList.show(e.target.getAttribute("accountid")); // the list must know the details container
+	          inputAccountIdOrigin.value = e.target.getAttribute("accountid");
 	        }, false);
 	        anchor.href = "#";
 	        row.appendChild(linkcell);
 	        self.listcontainerbody.appendChild(row);
 	      });
 	      this.listcontainer.style.visibility = "visible";
-
+		  	
 	    }
 
 	    this.autoclick = function(accountId) {
@@ -182,7 +184,7 @@
 
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  if(transferForm.checkValidity()){
-				  if(originAccount.value === accountDestination) {
+				  if(originAccount.value === accountDestination.value) {
 					  transferForm.reset();
 					  transferForm.showFailure("Origin account and destination can't be the same");
 					  //can't check balance-amount because the value could be outdated
@@ -192,8 +194,7 @@
 				  makeCall("POST", "CreateTransfer", transferForm,
 					  function (x){
 						  if (x.readyState == XMLHttpRequest.DONE) {
-							  var message = x.responseText;
-							  var errorField = document.getElementById("createTransferError");
+							  var message = x.responseText;							  
 							  switch (x.status) {
 								  case 200:
 									  pageOrchestrator.showSuccess(JSON.parse(message));
@@ -220,7 +221,8 @@
 		  accountList = new AccountList(
 	        alertContainer,
 	        document.getElementById("accountsList_id"),
-	        document.getElementById("accountsListBody_id"));
+	        document.getElementById("accountsListBody_id"),
+	        transferForm.querySelector("input[name='originAccount']"));
 	        
 	      transferList = new TransferList(
 	        alertContainer,
@@ -230,7 +232,9 @@
 	      document.querySelector("a[href='Logout']").addEventListener('click', () => {
 	        window.sessionStorage.removeItem('username');
 	        window.sessionStorage.removeItem('ID');
-	      })  
+	      })
+	      
+	      this.createTransferForm = CreateTransferForm(this);
 /*
 	      missionDetails = new MissionDetails({ // many parameters, wrap them in an
 	        // object
@@ -261,8 +265,6 @@
 	      })
 	      	    */
 	    };
-
-		this.createTransferForm = CreateTransferForm(this);
 
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change

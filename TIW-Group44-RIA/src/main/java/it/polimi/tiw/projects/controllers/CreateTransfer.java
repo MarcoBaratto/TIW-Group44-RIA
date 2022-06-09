@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import com.google.gson.Gson;
 
 import it.polimi.tiw.projects.beans.BankAccount;
-import it.polimi.tiw.projects.beans.Transfer;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
 import it.polimi.tiw.projects.dao.TransferDAO;
@@ -25,6 +25,7 @@ import it.polimi.tiw.projects.thinBeans.ThinTransfer;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/CreateTransfer")
+@MultipartConfig
 public class CreateTransfer extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +46,7 @@ public class CreateTransfer extends HttpServlet {
 		HttpSession session = request.getSession();
 
 		Float amount = null;
-		Integer idDestination = null;
+		Integer bankAccountidDestination = null;
 		Integer userDestination = null;
 		Integer bankAccountidOrigin = null;
 		String comments = null;
@@ -53,7 +54,7 @@ public class CreateTransfer extends HttpServlet {
 
 		try {
 			amount = Float.parseFloat(request.getParameter("amount"));
-			idDestination = Integer.parseInt(request.getParameter("idDestination"));
+			bankAccountidDestination = Integer.parseInt(request.getParameter("idDestination"));
 			userDestination = Integer.parseInt(request.getParameter("userDestination"));
 			comments = StringEscapeUtils.escapeJava(request.getParameter("comments"));
 			bankAccountidOrigin = Integer.parseInt(request.getParameter("bankAccountidOrigin"));
@@ -93,19 +94,19 @@ public class CreateTransfer extends HttpServlet {
 			return;
 		}
 
-		if(bankAccountidOrigin == idDestination) {
+		if(bankAccountidOrigin == bankAccountidDestination) {
 			errorMsg += "Origin and Destination are the same BankAccount ";
 		}
 
 		try {
 			accountOrigin = bankAccountDAO.detailsAccount(bankAccountidOrigin);
-			accountDest = bankAccountDAO.detailsAccount(idDestination);
+			accountDest = bankAccountDAO.detailsAccount(bankAccountidDestination);
 		}catch(SQLException e){
 			errorMsg = "Error finding accounts ";
 		}
 
 		try {
-			notAuthorizedDest = bankAccountDAO.checkAssociationAccountUser(userDestination, idDestination);
+			notAuthorizedDest = bankAccountDAO.checkAssociationAccountUser(userDestination, bankAccountidDestination);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().println("ERROR: cannot read data");
@@ -118,7 +119,6 @@ public class CreateTransfer extends HttpServlet {
 
 		TransferDAO transferDAO = new TransferDAO(connection);
 		ArrayList<Float> balancesAfter = new ArrayList<>();
-		Transfer transfer = null;
 		
 		if(!errorMsg.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -130,7 +130,7 @@ public class CreateTransfer extends HttpServlet {
 			try {
 				connection.setAutoCommit(false);
 				try {
-					balancesAfter = bankAccountDAO.transfer(amount, idDestination, bankAccountidOrigin);
+					balancesAfter = bankAccountDAO.transfer(amount, bankAccountidDestination, bankAccountidOrigin);
 				}catch(SQLException e){
 					if(e.getMessage().equals("Insufficent funds ")) {
 						if(errorMsg.isEmpty()) {
@@ -143,7 +143,7 @@ public class CreateTransfer extends HttpServlet {
 				}
 				if(errorMsg.isEmpty()) {
 					try {
-						transferDAO.createTransfer(bankAccountidOrigin, idDestination, amount, comments);
+						transferDAO.createTransfer(bankAccountidOrigin, bankAccountidDestination, amount, comments);
 					}catch(SQLException e) {
 						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 						response.getWriter().println("There was a problem during the transfer's creation");
@@ -162,7 +162,7 @@ public class CreateTransfer extends HttpServlet {
 			return;
 		}
 		
-		ThinTransfer t = new ThinTransfer(balancesAfter, amount, bankAccountidOrigin, idDestination, comments);
+		ThinTransfer t = new ThinTransfer(balancesAfter, amount, accountOrigin.getId(), bankAccountidDestination, accountDest.getIdUser(), comments);
 		String transferJson = new Gson().toJson(t);
 		response.getWriter().println(transferJson);
 	}
