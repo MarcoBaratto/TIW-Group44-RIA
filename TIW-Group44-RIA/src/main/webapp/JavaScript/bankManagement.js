@@ -1,7 +1,7 @@
 { // avoid variables ending up in the global scope
 
 	  // page components
-	  let transferList, accountList, wizard,
+	  let transferList, accountList, createTransferForm, resultTransferDiv, 
 	    pageOrchestrator = new PageOrchestrator(); // main controller
 
 	  window.addEventListener("load", () => {
@@ -15,23 +15,39 @@
 
 
 	  // Constructors of view components
-/*
-	  function PersonalMessage(_username, messagecontainer) {
-	    this.username = _username;
-	    this.show = function() {
-	      messagecontainer.textContent = this.username;
+	  
+	  function ResultTransferDiv(_resultDiv, _transferOKDiv, _transferKODiv, _fieldsSuccess, _errorP, pageOrchestrator) {
+		this.resultDiv = _resultDiv;
+		this.transferOkDiv = _transferOKDiv;
+		this.transferKoDiv = _transferKODiv;
+		this.fieldsSuccess = _fieldsSuccess;
+		this.errorP = _errorP;
+		this.pageOrchestrator = pageOrchestrator;
+		
+		this.reset = function() {
+	       this.resultDiv.style.display = 'none';
 	    }
+		
+		this.showSuccess = function(transfer) {
+			this.fieldsSuccess.originT.textContent = transfer.idBankAccountFrom;
+			this.fieldsSuccess.destinationT.textContent = transfer.idBankAccountTo;
+			this.fieldsSuccess.originBalanceB.textContent = transfer.BalancesBefore[0];
+			this.fieldsSuccess.originBalanceB.textContent = transfer.idBankAccountFrom;
+			this.fieldsSuccess.originT.textContent = transfer.idBankAccountFrom;
+		}
+		
+		this.showFailure = function(message) {
+			
+		}
 	  }
-	  */
 
-	  function AccountList(_alert, _listcontainer, _listcontainerbody, _inputAccountIdOrigin) {
+	  function AccountList(_alert, _listcontainer, _listcontainerbody) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
-	    this.inputAccountIdOrigin = _inputAccountIdOrigin;
 
 	    this.reset = function() {
-	      this.listcontainer.style.visibility = "hidden";
+	      this.listcontainer.style.display = 'none';
 	    }
 
 	    this.show = function(next) {
@@ -97,7 +113,7 @@
 
 	    this.autoclick = function(accountId) {
 	      var e = new Event("click");
-	      var selector = "a[accountid='" + accountId + "']";
+	      var selector = 'a[accountid="' + accountId + '"]';
 	      var anchorToClick =  // the first account or the account with id = accountId
 	        (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
 	      if (anchorToClick) anchorToClick.dispatchEvent(e);
@@ -110,7 +126,7 @@
 	    this.listcontainerbody = _listcontainerbody;
 
 	    this.reset = function() {
-	      this.listcontainer.style.visibility = "hidden";
+	      this.listcontainer.style.display = 'none';
 	    }
 
 	    this.show = function(accountId) {
@@ -175,9 +191,9 @@
 	  }
 
 	  function CreateTransferForm(pageOrchestrator){
-		  var transferForm = document.getElementById("createTransferForm_id");
-		  var accountDestination = document.getElementById("idDestination");
-		  var originAccount = document.getElementById("originAccount_id");
+		  this.transferForm = document.getElementById("createTransferForm_id");
+		  this.accountDestination = document.getElementById("idDestination");
+		  this.originAccount = document.getElementById("originAccount_id");
 
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  if(transferForm.checkValidity()){
@@ -194,7 +210,9 @@
 							  var message = x.responseText;							  
 							  switch (x.status) {
 								  case 200:
+							  		  //pageOrchestrator.refresh(self.originAccount.value);
 									  pageOrchestrator.showSuccess(JSON.parse(message));
+									  
 									  break;
 								  default:
 									  pageOrchestrator.showFailure(message);
@@ -218,8 +236,7 @@
 		  accountList = new AccountList(
 	        alertContainer,
 	        document.getElementById("accountsList_id"),
-	        document.getElementById("accountsListBody_id"),
-	        document.getElementById("createTransferForm_id").querySelector("input[name='originAccount']"));
+	        document.getElementById("accountsListBody_id"));
 	        
 	      transferList = new TransferList(
 	        alertContainer,
@@ -231,27 +248,26 @@
 	        window.sessionStorage.removeItem('ID');
 	      })
 	      
-	      this.createTransferForm = CreateTransferForm(this);
+	      resultTransferDiv = new ResultTransferDiv(
+			document.getElementById("result_id"),
+			document.getElementById("transferOK_id"),
+			document.getElementById("transferKO_id"),
+			{ // many parameters, wrap them in an object
+		        originT: document.getElementById("originT_id"),
+		        originBalanceB: document.getElementById("originBalanceB_id"),
+		        originBalanceA: document.getElementById("originBalanceA_id"),
+		        destinationT: document.getElementById("destinationT_id"),
+		        destinationBalanceB: document.getElementById("destinationBalanceB_id"),
+		        destinationBalanceA: document.getElementById("destinationBalanceA_id"),
+		        comments: document.getElementById("comments_id"),
+		        amount: document.getElementById("amount_id")
+	        },
+	        document.getElementById("transferError_id"),
+			this
+		  );
+	      
+	      createTransferForm = CreateTransferForm(this);
 /*
-	      missionDetails = new MissionDetails({ // many parameters, wrap them in an
-	        // object
-	        alert: alertContainer,
-	        detailcontainer: document.getElementById("id_detailcontainer"),
-	        expensecontainer: document.getElementById("id_expensecontainer"),
-	        expenseform: document.getElementById("id_expenseform"),
-	        closeform: document.getElementById("id_closeform"),
-	        date: document.getElementById("id_date"),
-	        destination: document.getElementById("id_destination"),
-	        status: document.getElementById("id_status"),
-	        description: document.getElementById("id_description"),
-	        country: document.getElementById("id_country"),
-	        province: document.getElementById("id_province"),
-	        city: document.getElementById("id_city"),
-	        fund: document.getElementById("id_fund"),
-	        food: document.getElementById("id_food"),
-	        accomodation: document.getElementById("id_accomodation"),
-	        transportation: document.getElementById("id_transportation")
-	      });
 	      missionDetails.registerEvents(this); // the orchestrator passes itself --this-- so that the wizard can call its refresh function after updating a mission
 
 	      wizard = new Wizard(document.getElementById("id_createmissionform"), alertContainer);
@@ -266,7 +282,7 @@
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
 	      accountList.reset();
-	      //missionDetails.reset();
+	      resultTransferDiv.reset()
 	      accountList.show(function() {
 	        accountList.autoclick(currentAccount); 
 	      }); // closure preserves visibility of this
@@ -274,10 +290,15 @@
 	    };
 
 		this.showSuccess = function (transfer){
-
+			accountList.reset();
+			transferList.reset();
+			resultTransferDiv.showSuccess(transfer);
 		}
+		
 		this.showFailure = function (message){
-
+			accountList.reset();
+			transferList.reset();
+			resultTransferDiv.showFailure(message);
 		}
 	  }
 
