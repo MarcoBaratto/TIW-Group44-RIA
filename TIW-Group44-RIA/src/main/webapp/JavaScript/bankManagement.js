@@ -1,7 +1,7 @@
 { // avoid variables ending up in the global scope
 
 	  // page components
-	  let transferList, accountList, createTransferForm, resultTransferDiv, 
+	  let transferList, accountList, createTransferForm, resultTransferDiv, selectedAccount, 
 	    pageOrchestrator = new PageOrchestrator(); // main controller
 
 	  window.addEventListener("load", () => {
@@ -16,29 +16,43 @@
 
 	  // Constructors of view components
 	  
-	  function ResultTransferDiv(_resultDiv, _transferOKDiv, _transferKODiv, _fieldsSuccess, _errorP, pageOrchestrator) {
+	  function ResultTransferDiv(_resultDiv, _transferOKDiv, _transferKODiv, _fieldsSuccess, _errorP, _closeButton, pageOrchestrator) {
 		this.resultDiv = _resultDiv;
 		this.transferOkDiv = _transferOKDiv;
 		this.transferKoDiv = _transferKODiv;
 		this.fieldsSuccess = _fieldsSuccess;
 		this.errorP = _errorP;
+		this.closeButton = _closeButton;
 		this.pageOrchestrator = pageOrchestrator;
 		
 		this.reset = function() {
 	       this.resultDiv.style.display = 'none';
 	    }
+	    
+	    this.closeButton.addEventListener("click", (e) => {
+	          this.pageOrchestrator.refresh(selectedAccount);
+	     	}, false);
 		
 		this.showSuccess = function(transfer) {
-			this.fieldsSuccess.originT.textContent = transfer.idBankAccountFrom;
-			this.fieldsSuccess.destinationT.textContent = transfer.idBankAccountTo;
-			this.fieldsSuccess.originBalanceB.textContent = transfer.BalancesBefore[0];
-			this.fieldsSuccess.originBalanceB.textContent = transfer.idBankAccountFrom;
-			this.fieldsSuccess.originT.textContent = transfer.idBankAccountFrom;
+			this.fieldsSuccess.comments.textContent = transfer.comments;
+			this.fieldsSuccess.amount.textContent = "Transfer amount: " + transfer.amount;
+			this.fieldsSuccess.originT.textContent = "Origin Account ID: " + transfer.idBankAccountFrom;
+			this.fieldsSuccess.destinationT.textContent = "Destination Account ID: " + transfer.idBankAccountTo;
+			this.fieldsSuccess.originBalanceB.textContent = "Origin Account Balance before transfer: " + transfer.balancesBefore[0];
+			this.fieldsSuccess.originBalanceA.textContent = "Origin Account Balance after transfer: " + transfer.balancesAfter[0];
+			this.fieldsSuccess.destinationBalanceB.textContent = "Destination Account Balance before transfer: " + transfer.balancesBefore[1];
+			this.fieldsSuccess.destinationBalanceA.textContent = "Destination Account Balance after transfer: " + transfer.balancesAfter[1];
+			this.resultDiv.style.display = 'block';
+			this.transferKoDiv.style.display = 'none';
+			
 		}
 		
 		this.showFailure = function(message) {
-			
+			this.errorP.textContent = message;
+			this.resultDiv.style.display = 'block';
+			this.transferOkDiv.style.display = 'none';
 		}
+		
 	  }
 
 	  function AccountList(_alert, _listcontainer, _listcontainerbody) {
@@ -51,6 +65,7 @@
 	    }
 
 	    this.show = function(next) {
+		  this.listcontainer.style.display = 'block';
 	      var self = this;
 	      makeCall("GET", "GetAccountsData", null,
 	        function(req) {
@@ -100,8 +115,8 @@
 	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
 	        anchor.addEventListener("click", (e) => {
 	          // dependency via module parameter
+	          selectedAccount = e.target.getAttribute("accountid");
 	          transferList.show(e.target.getAttribute("accountid")); // the list must know the details container
-	          //inputAccountIdOrigin.value = e.target.getAttribute("accountid");
 	        }, false);
 	        anchor.href = "#";
 	        row.appendChild(linkcell);
@@ -130,6 +145,7 @@
 	    }
 
 	    this.show = function(accountId) {
+		  this.listcontainer.style.display = 'block';
 	      var self = this;
 	      makeCall("GET", "GetTransfersData?bankAccountid=" + accountId, null,
 	        function(req) {
@@ -210,7 +226,7 @@
 							  var message = x.responseText;							  
 							  switch (x.status) {
 								  case 200:
-							  		  //pageOrchestrator.refresh(self.originAccount.value);
+								  	  selectedAccount = self.originAccount.value;	
 									  pageOrchestrator.showSuccess(JSON.parse(message));
 									  
 									  break;
@@ -259,10 +275,11 @@
 		        destinationT: document.getElementById("destinationT_id"),
 		        destinationBalanceB: document.getElementById("destinationBalanceB_id"),
 		        destinationBalanceA: document.getElementById("destinationBalanceA_id"),
-		        comments: document.getElementById("comments_id"),
-		        amount: document.getElementById("amount_id")
+		        comments: document.getElementById("commentsTransfer_id"),
+		        amount: document.getElementById("amountTransfer_id")
 	        },
 	        document.getElementById("transferError_id"),
+	        document.getElementById("closeTransfer_id"),
 			this
 		  );
 	      
@@ -281,12 +298,11 @@
 
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
-	      accountList.reset();
+	      //accountList.reset();
 	      resultTransferDiv.reset()
 	      accountList.show(function() {
 	        accountList.autoclick(currentAccount); 
 	      }); // closure preserves visibility of this
-	      //wizard.reset();
 	    };
 
 		this.showSuccess = function (transfer){
