@@ -119,6 +119,9 @@ public class CreateTransfer extends HttpServlet {
 
 		TransferDAO transferDAO = new TransferDAO(connection);
 		ArrayList<Float> balancesAfter = new ArrayList<>();
+		ArrayList<Float> balancesBefore = new ArrayList<>();
+		balancesBefore.add(accountOrigin.getBalance());
+		balancesBefore.add(accountDest.getBalance());
 		
 		if(!errorMsg.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -162,7 +165,7 @@ public class CreateTransfer extends HttpServlet {
 			return;
 		}
 		
-		ThinTransfer t = new ThinTransfer(balancesAfter, amount, accountOrigin.getId(), bankAccountidDestination, accountDest.getIdUser(), comments);
+		ThinTransfer t = new ThinTransfer( balancesBefore, balancesAfter, amount, accountOrigin.getId(), bankAccountidDestination, accountDest.getIdUser(), comments);
 		String transferJson = new Gson().toJson(t);
 		response.getWriter().println(transferJson);
 	}

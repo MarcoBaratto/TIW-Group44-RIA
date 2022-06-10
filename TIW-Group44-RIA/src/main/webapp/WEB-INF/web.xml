@@ -17,7 +17,7 @@
     <param-name>dbDriver</param-name>
     <param-value>com.mysql.cj.jdbc.Driver</param-value>
   </context-param>
-  	<filter> 
+  	<filter>
       <filter-name>NoCacher</filter-name>
       <filter-class>it.polimi.tiw.projects.filters.NoCacher</filter-class> 
  	</filter> 
