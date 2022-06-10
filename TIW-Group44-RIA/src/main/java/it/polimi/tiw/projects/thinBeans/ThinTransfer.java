@@ -4,23 +4,29 @@ import java.util.ArrayList;
 
 public class ThinTransfer{
 	private ArrayList<Float> balancesAfter;
+	private ArrayList<Float> balancesBefore;
 	private float amount;
 	private int idBankAccountFrom;
 	private int idBankAccountTo;
 	private int idOwnerTo;
 	private String comments;
 	
-	public ThinTransfer(ArrayList<Float> balancesAfter, float amount, int idBankAccountFrom, int idBankAccountTo, int idOwnerTo, 
+	public ThinTransfer(ArrayList<Float> balancesBefore, ArrayList<Float> balancesAfter, float amount, int idBankAccountFrom, int idBankAccountTo, int idOwnerTo, 
 			String comments) {
 		super();
 		this.balancesAfter = balancesAfter;
+		this.balancesBefore = balancesBefore;
 		this.amount = amount;
 		this.idBankAccountFrom = idBankAccountFrom;
 		this.idBankAccountTo = idBankAccountTo;
 		this.idOwnerTo = idOwnerTo;
 		this.comments = comments;
 	}
-
+	
+	public ArrayList<Float> getBalancesBefore() {
+		return balancesBefore;
+	}
+	
 	public ArrayList<Float> getBalancesAfter() {
 		return balancesAfter;
 	}

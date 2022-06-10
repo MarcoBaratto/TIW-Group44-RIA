@@ -165,7 +165,7 @@ public class CreateTransfer extends HttpServlet {
 			return;
 		}
 		
-		ThinTransfer t = new ThinTransfer(balancesAfter, amount, accountOrigin.getId(), bankAccountidDestination, accountDest.getIdUser(), comments);
+		ThinTransfer t = new ThinTransfer( balancesBefore, balancesAfter, amount, accountOrigin.getId(), bankAccountidDestination, accountDest.getIdUser(), comments);
 		String transferJson = new Gson().toJson(t);
 		response.getWriter().println(transferJson);
 	}
