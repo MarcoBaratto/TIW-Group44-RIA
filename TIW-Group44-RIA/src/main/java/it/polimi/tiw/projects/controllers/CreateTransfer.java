@@ -119,6 +119,9 @@ public class CreateTransfer extends HttpServlet {
 
 		TransferDAO transferDAO = new TransferDAO(connection);
 		ArrayList<Float> balancesAfter = new ArrayList<>();
+		ArrayList<Float> balancesBefore = new ArrayList<>();
+		balancesBefore.add(accountOrigin.getBalance());
+		balancesBefore.add(accountDest.getBalance());
 		
 		if(!errorMsg.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

@@ -17,7 +17,7 @@
     <param-name>dbDriver</param-name>
     <param-value>com.mysql.cj.jdbc.Driver</param-value>
   </context-param>
-  	<filter> 
+  	<filter>
       <filter-name>NoCacher</filter-name>
       <filter-class>it.polimi.tiw.projects.filters.NoCacher</filter-class> 
  	</filter> 
@@ -26,6 +26,19 @@
     <url-pattern>/Home.html</url-pattern>
     <url-pattern>/LoginRegistration.html</url-pattern>
  </filter-mapping> 
+ <filter>
+    <filter-name>CheckAuthentication</filter-name>
+    <filter-class>it.polimi.tiw.projects.filters.CheckAuthentication</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CheckAuthentication</filter-name>
+    <url-pattern>/AddToContacts</url-pattern>
+    <url-pattern>/GetAccounstData</url-pattern>
+    <url-pattern>/CreateBankAccount</url-pattern>
+    <url-pattern>/CreateTransfer</url-pattern>
+    <url-pattern>/GetContacts</url-pattern>
+    <url-pattern>/GetTransfersData</url-pattern>
+  </filter-mapping>
   <welcome-file-list>
     <welcome-file>LoginRegistration.html</welcome-file>
   </welcome-file-list>
