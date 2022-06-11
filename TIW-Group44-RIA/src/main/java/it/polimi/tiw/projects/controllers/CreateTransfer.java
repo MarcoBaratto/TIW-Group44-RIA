@@ -1,9 +1,10 @@
 package it.polimi.tiw.projects.controllers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -45,7 +46,7 @@ public class CreateTransfer extends HttpServlet {
 		// If the user is not logged in (not present in session) redirect to the login done by the filter
 		HttpSession session = request.getSession();
 
-		Float amount = null;
+		BigDecimal amount = null;
 		Integer bankAccountidDestination = null;
 		Integer userDestination = null;
 		Integer bankAccountidOrigin = null;
@@ -53,7 +54,8 @@ public class CreateTransfer extends HttpServlet {
 		boolean isBadRequest = false;
 
 		try {
-			amount = Float.parseFloat(request.getParameter("amount"));
+			amount = new BigDecimal(request.getParameter("amount"));
+			amount = amount.setScale(2,RoundingMode.HALF_EVEN);
 			bankAccountidDestination = Integer.parseInt(request.getParameter("idDestination"));
 			userDestination = Integer.parseInt(request.getParameter("userDestination"));
 			comments = StringEscapeUtils.escapeJava(request.getParameter("comments"));
@@ -62,7 +64,7 @@ public class CreateTransfer extends HttpServlet {
 			isBadRequest = true;
 		}
 
-		if(amount <= 0 || comments  == null || comments.isEmpty()) {
+		if(amount == null || amount.compareTo(BigDecimal.ZERO) <= 0 || comments  == null || comments.isEmpty()) {
 			isBadRequest = true;
 		}
 
@@ -118,10 +120,9 @@ public class CreateTransfer extends HttpServlet {
 		}
 
 		TransferDAO transferDAO = new TransferDAO(connection);
-		ArrayList<Float> balancesAfter = new ArrayList<>();
-		ArrayList<Float> balancesBefore = new ArrayList<>();
-		balancesBefore.add(accountOrigin.getBalance());
-		balancesBefore.add(accountDest.getBalance());
+		BigDecimal balancesBefore[] = new BigDecimal[2], balancesAfter[] = new BigDecimal[2];
+		balancesBefore[0] = accountOrigin.getBalance();
+		balancesBefore[1] = accountDest.getBalance();
 		
 		if(!errorMsg.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

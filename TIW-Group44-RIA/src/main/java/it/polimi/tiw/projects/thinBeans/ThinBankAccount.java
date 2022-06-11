@@ -1,10 +1,12 @@
 package it.polimi.tiw.projects.thinBeans;
 
+import java.math.BigDecimal;
+
 public class ThinBankAccount{
 	private int id;
-	private float balance;
+	private BigDecimal balance;
 	
-	public ThinBankAccount(int id, float balance) {
+	public ThinBankAccount(int id, BigDecimal balance) {
 		this.id = id;
 		this.balance = balance;
 	}
@@ -13,7 +15,7 @@ public class ThinBankAccount{
 		return id;
 	}
 	
-	public float getBalance() {
+	public BigDecimal getBalance() {
 		return balance;
 	}
 	

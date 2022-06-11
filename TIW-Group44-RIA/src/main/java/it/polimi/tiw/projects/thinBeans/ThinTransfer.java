@@ -1,17 +1,18 @@
 package it.polimi.tiw.projects.thinBeans;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class ThinTransfer{
-	private ArrayList<Float> balancesAfter;
-	private ArrayList<Float> balancesBefore;
-	private float amount;
+	private BigDecimal[] balancesAfter;
+	private BigDecimal[] balancesBefore;
+	private BigDecimal amount;
 	private int idBankAccountFrom;
 	private int idBankAccountTo;
 	private int idOwnerTo;
 	private String comments;
 	
-	public ThinTransfer(ArrayList<Float> balancesBefore, ArrayList<Float> balancesAfter, float amount, int idBankAccountFrom, int idBankAccountTo, int idOwnerTo, 
+	public ThinTransfer(BigDecimal[] balancesBefore, BigDecimal[] balancesAfter, BigDecimal amount, int idBankAccountFrom, int idBankAccountTo, int idOwnerTo, 
 			String comments) {
 		super();
 		this.balancesAfter = balancesAfter;
@@ -23,15 +24,15 @@ public class ThinTransfer{
 		this.comments = comments;
 	}
 	
-	public ArrayList<Float> getBalancesBefore() {
+	public BigDecimal[] getBalancesBefore() {
 		return balancesBefore;
 	}
 	
-	public ArrayList<Float> getBalancesAfter() {
+	public BigDecimal[] getBalancesAfter() {
 		return balancesAfter;
 	}
 
-	public float getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 

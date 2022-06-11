@@ -16,17 +16,19 @@
 
 	  // Constructors of view components
 	  
-	  function ResultTransferDiv(_resultDiv, _transferOKDiv, _transferKODiv, _fieldsSuccess, _errorP, _closeButton, pageOrchestrator) {
+	  function ResultTransferDiv(_resultDiv, _transferOKDiv, _transferKODiv, _fieldsSuccess, _errorP, _closeButton, contactMessage, pageOrchestrator) {
 		this.resultDiv = _resultDiv;
 		this.transferOkDiv = _transferOKDiv;
 		this.transferKoDiv = _transferKODiv;
 		this.fieldsSuccess = _fieldsSuccess;
 		this.errorP = _errorP;
 		this.closeButton = _closeButton;
+		this.contactMessage = contactMessage;
 		this.pageOrchestrator = pageOrchestrator;
 		
 		this.reset = function() {
 	       this.resultDiv.style.display = 'none';
+	       this.contactMessage.textContent = "";
 	    }
 	    
 	    this.closeButton.addEventListener("click", (e) => {
@@ -37,14 +39,33 @@
 			this.fieldsSuccess.comments.textContent = transfer.comments;
 			this.fieldsSuccess.amount.textContent = "Transfer amount: " + transfer.amount;
 			this.fieldsSuccess.originT.textContent = "Origin Account ID: " + transfer.idBankAccountFrom;
+			this.fieldsSuccess.ownerDestination.textContent = "Destination Owner ID: " + transfer.idOwnerTo;
 			this.fieldsSuccess.destinationT.textContent = "Destination Account ID: " + transfer.idBankAccountTo;
 			this.fieldsSuccess.originBalanceB.textContent = "Origin Account Balance before transfer: " + transfer.balancesBefore[0];
 			this.fieldsSuccess.originBalanceA.textContent = "Origin Account Balance after transfer: " + transfer.balancesAfter[0];
 			this.fieldsSuccess.destinationBalanceB.textContent = "Destination Account Balance before transfer: " + transfer.balancesBefore[1];
 			this.fieldsSuccess.destinationBalanceA.textContent = "Destination Account Balance after transfer: " + transfer.balancesAfter[1];
+			this.addContactButton = this.fieldsSuccess.addContactButton;
+			
 			this.resultDiv.style.display = 'block';
 			this.transferKoDiv.style.display = 'none';
 			
+			this.addContactButton.addEventListener("click", (e)=>{
+				makeCall("GET", "AddToContacts?contactId="+transfer.idOwnerTo+"&contactAccount="+transfer.idBankAccountTo, null,
+				function(req){
+					if (req.readyState == 4) {
+		            	switch(req.status){
+							case 200:
+								contactMessage.textContent = "Contact ADDED";
+								break;
+							case 400:
+							case 500:
+							default:
+								contactMessage.textContent = req.responseText;	
+						}			
+					}
+				});
+			});
 		}
 		
 		this.showFailure = function(message) {
@@ -52,7 +73,7 @@
 			this.resultDiv.style.display = 'block';
 			this.transferOkDiv.style.display = 'none';
 		}
-		
+			
 	  }
 
 	  function AccountList(_alert, _listcontainer, _listcontainerbody) {
@@ -272,14 +293,17 @@
 		        originT: document.getElementById("originT_id"),
 		        originBalanceB: document.getElementById("originBalanceB_id"),
 		        originBalanceA: document.getElementById("originBalanceA_id"),
+		        ownerDestination: document.getElementById("ownerDestination_id"),
 		        destinationT: document.getElementById("destinationT_id"),
 		        destinationBalanceB: document.getElementById("destinationBalanceB_id"),
 		        destinationBalanceA: document.getElementById("destinationBalanceA_id"),
 		        comments: document.getElementById("commentsTransfer_id"),
-		        amount: document.getElementById("amountTransfer_id")
+		        amount: document.getElementById("amountTransfer_id"),
+		        addContactButton: document.getElementById("addContactButton_id")
 	        },
 	        document.getElementById("transferError_id"),
 	        document.getElementById("closeTransfer_id"),
+	        document.getElementById("contactMessage_id"),
 			this
 		  );
 	      
@@ -320,223 +344,4 @@
 
 
 
-	/*
-    function accountDetails(options) {
-      this.alert = options['alert'];
-      this.detailcontainer = options['detailcontainer'];
-      this.expensecontainer = options['expensecontainer'];
-      this.expenseform = options['expenseform'];
-      this.closeform = options['closeform'];
-      this.date = options['date'];
-      this.destination = options['destination'];
-      this.status = options['status'];
-      this.description = options['description'];
-      this.country = options['country'];
-      this.province = options['province'];
-      this.city = options['city'];
-      this.fund = options['fund'];
-      this.food = options['food'];
-      this.accomodation = options['accomodation'];
-      this.travel = options['transportation'];
-
-      this.registerEvents = function(orchestrator) {
-        this.expenseform.querySelector("input[type='button']").addEventListener('click', (e) => {
-          var form = e.target.closest("form");
-          if (form.checkValidity()) {
-            var self = this,
-              missionToReport = form.querySelector("input[type = 'hidden']").value;
-            makeCall("POST", 'CreateExpensesReport', form,
-              function(req) {
-                if (req.readyState == 4) {
-                  var message = req.responseText;
-                  if (req.status == 200) {
-                    orchestrator.refresh(missionToReport);
-                  } else if (req.status == 403) {
-                window.location.href = req.getResponseHeader("Location");
-                window.sessionStorage.removeItem('username');
-                }
-                else {
-                    self.alert.textContent = message;
-                  }
-                }
-              }
-            );
-          } else {
-            form.reportValidity();
-          }
-        });
-
-        this.closeform.querySelector("input[type='button']").addEventListener('click', (event) => {
-          var self = this,
-            form = event.target.closest("form"),
-            missionToClose = form.querySelector("input[type = 'hidden']").value;
-          makeCall("POST", 'CloseMission', form,
-            function(req) {
-              if (req.readyState == 4) {
-                var message = req.responseText;
-                if (req.status == 200) {
-                  orchestrator.refresh(missionToClose);
-                } else if (req.status == 403) {
-                    window.location.href = req.getResponseHeader("Location");
-                    window.sessionStorage.removeItem('username');
-                }
-                else {
-                  self.alert.textContent = message;
-                }
-              }
-            }
-          );
-        });
-      }
-
-      this.show = function(missionid) {
-        var self = this;
-        makeCall("GET", "GetMissionDetailsData?missionid=" + missionid, null,
-          function(req) {
-            if (req.readyState == 4) {
-              var message = req.responseText;
-              if (req.status == 200) {
-                var mission = JSON.parse(req.responseText);
-                self.update(mission); // self is the object on which the function
-                // is applied
-                self.detailcontainer.style.visibility = "visible";
-                switch (mission.status) {
-                  case "OPEN":
-                    self.expensecontainer.style.visibility = "hidden";
-                    self.expenseform.style.visibility = "visible";
-                    self.expenseform.missionid.value = mission.id;
-                    self.closeform.style.visibility = "hidden";
-                    break;
-                  case "REPORTED":
-                    self.expensecontainer.style.visibility = "visible";
-                    self.expenseform.style.visibility = "hidden";
-                    self.closeform.missionid.value = mission.id;
-                    self.closeform.style.visibility = "visible";
-                    break;
-                  case "CLOSED":
-                    self.expensecontainer.style.visibility = "visible";
-                    self.expenseform.style.visibility = "hidden";
-                    self.closeform.style.visibility = "hidden";
-                    break;
-                }
-              } else if (req.status == 403) {
-                window.location.href = req.getResponseHeader("Location");
-                window.sessionStorage.removeItem('username');
-                }
-                else {
-                self.alert.textContent = message;
-
-              }
-            }
-          }
-        );
-      };
-
-      this.reset = function() {
-        this.detailcontainer.style.visibility = "hidden";
-        this.expensecontainer.style.visibility = "hidden";
-        this.expenseform.style.visibility = "hidden";
-        this.closeform.style.visibility = "hidden";
-      }
-
-      this.update = function(m) {
-        this.date.textContent = m.startDate;
-        this.destination.textContent = m.destination;
-        this.status.textContent = m.status;
-        this.description.textContent = m.description;
-        this.country.textContent = m.country;
-        this.province.textContent = m.province;
-        this.city.textContent = m.city;
-        this.fund.textContent = m.fund;
-        this.food.textContent = m.expenses.food;
-        this.accomodation.textContent = m.expenses.accomodation;
-        this.travel.textContent = m.expenses.transportation;
-      }
-    }
-
-    function Wizard(wizardId, alert) {
-      // minimum date the user can choose, in this case now and in the future
-      var now = new Date(),
-        formattedDate = now.toISOString().substring(0, 10);
-      this.wizard = wizardId;
-      this.alert = alert;
-
-      this.wizard.querySelector('input[type="date"]').setAttribute("min", formattedDate);
-
-      this.registerEvents = function(orchestrator) {
-        // Manage previous and next buttons
-        Array.from(this.wizard.querySelectorAll("input[type='button'].next,  input[type='button'].prev")).forEach(b => {
-          b.addEventListener("click", (e) => { // arrow function preserve the
-            // visibility of this
-            var eventfieldset = e.target.closest("fieldset"),
-              valid = true;
-            if (e.target.className == "next") {
-              for (i = 0; i < eventfieldset.elements.length; i++) {
-                if (!eventfieldset.elements[i].checkValidity()) {
-                  eventfieldset.elements[i].reportValidity();
-                  valid = false;
-                  break;
-                }
-              }
-            }
-            if (valid) {
-              this.changeStep(e.target.parentNode, (e.target.className === "next") ? e.target.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
-            }
-          }, false);
-        });
-
-        // Manage submit button
-        this.wizard.querySelector("input[type='button'].submit").addEventListener('click', (e) => {
-          var eventfieldset = e.target.closest("fieldset"),
-            valid = true;
-          for (i = 0; i < eventfieldset.elements.length; i++) {
-            if (!eventfieldset.elements[i].checkValidity()) {
-              eventfieldset.elements[i].reportValidity();
-              valid = false;
-              break;
-            }
-          }
-
-          if (valid) {
-            var self = this;
-            makeCall("POST", 'CreateMission', e.target.closest("form"),
-              function(req) {
-                if (req.readyState == XMLHttpRequest.DONE) {
-                  var message = req.responseText; // error message or mission id
-                  if (req.status == 200) {
-                    orchestrator.refresh(message); // id of the new mission passed
-                  } else if (req.status == 403) {
-                    window.location.href = req.getResponseHeader("Location");
-                    window.sessionStorage.removeItem('username');
-                }
-                else {
-                    self.alert.textContent = message;
-                    self.reset();
-                  }
-                }
-              }
-            );
-          }
-        });
-        // Manage cancel button
-        this.wizard.querySelector("input[type='button'].cancel").addEventListener('click', (e) => {
-          e.target.closest('form').reset();
-          this.reset();
-        });
-      };
-
-      this.reset = function() {
-        var fieldsets = document.querySelectorAll("#" + this.wizard.id + " fieldset");
-        fieldsets[0].hidden = false;
-        fieldsets[1].hidden = true;
-        fieldsets[2].hidden = true;
-
-      }
-
-      this.changeStep = function(origin, destination) {
-        origin.hidden = true;
-        destination.hidden = false;
-      }
-    }
-*/
 };

@@ -1,11 +1,13 @@
 package it.polimi.tiw.projects.beans;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class Transfer{
 	private int id;
-	private float amount;
-	private Date date;
+	private BigDecimal amount;
+	private Timestamp date;
 	private int idBankAccountFrom;
 	private int idBankAccountTo;
 	private String comments;
@@ -16,16 +18,16 @@ public class Transfer{
 	public void setId(int id) {
 		this.id = id;
 	}
-	public float getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
-	public void setAmount(float amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 	public Date getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+	public void setDate(Timestamp date) {
 		this.date = date;
 	}
 	public int getIdBankAccountFrom() {

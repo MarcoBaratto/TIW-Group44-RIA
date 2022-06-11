@@ -1,9 +1,11 @@
 package it.polimi.tiw.projects.dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -34,14 +36,13 @@ public class TransferDAO{
 	 * @param comment the transaction comment
 	 * @throws SQLException if an error is encountered during the interaction with the db
 	 */
-	public void createTransfer(int IdOrigin, int IdDestination, float balance, String comment) throws SQLException {
+	public void createTransfer(int IdOrigin, int IdDestination, BigDecimal balance, String comment) throws SQLException {
 		String query = "INSERT INTO Transfer VALUES(ID, ?, ?, ?, ?, ?)";
 		try (PreparedStatement pstatement = con.prepareStatement(query);){
 			pstatement.setInt(1,IdOrigin);
 			pstatement.setInt(2,IdDestination);
-			pstatement.setFloat(3,balance);
-			Date d = new Date();
-			pstatement.setDate(4,new java.sql.Date(d.getTime()));
+			pstatement.setBigDecimal(3,balance);
+			pstatement.setTimestamp(4,new Timestamp(System.currentTimeMillis()));
 			pstatement.setString(5, comment);
 			pstatement.executeUpdate();
 		}
@@ -64,10 +65,10 @@ public class TransferDAO{
 				while (result.next()) {
 					Transfer transfer = new Transfer();
 					transfer.setId(result.getInt("ID"));
-					transfer.setAmount(result.getFloat("Balance"));
+					transfer.setAmount(result.getBigDecimal("Balance"));
 					transfer.setIdBankAccountFrom(result.getInt("Origin"));
 					transfer.setIdBankAccountTo(result.getInt("Destination"));
-					transfer.setDate((Date)result.getDate("Date"));
+					transfer.setDate(result.getTimestamp("Date"));
 					transfer.setComments(result.getString("Reason"));
 					
 					transfers.add(transfer);

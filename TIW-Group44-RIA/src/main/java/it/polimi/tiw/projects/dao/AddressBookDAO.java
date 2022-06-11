@@ -14,7 +14,7 @@ public class AddressBookDAO{
 		this.con = con;
 	}
 	
-	public void createContact(int ownerId, int accountId) throws SQLException {
+	public void createContact(int ownerId, int accountId) throws SQLException, Exception {
 		try {
 			con.setAutoCommit(false);
 			
@@ -27,6 +27,8 @@ public class AddressBookDAO{
 					
 					con.commit();
 				}
+			}else {
+				throw new Exception("Contact already present");
 			}
 		} catch (SQLException e) {
 			con.rollback();

@@ -1,9 +1,11 @@
 package it.polimi.tiw.projects.beans;
 
+import java.math.BigDecimal;
+
 public class BankAccount{
 	private int id;
 	private int idUser;
-	private float balance;
+	private BigDecimal balance;
 	
 	public int getId() {
 		return id;
@@ -17,10 +19,10 @@ public class BankAccount{
 	public void setIdUser(int idUser) {
 		this.idUser = idUser;
 	}
-	public float getBalance() {
+	public BigDecimal getBalance() {
 		return balance;
 	}
-	public void setBalance(float balance) {
+	public void setBalance(BigDecimal balance) {
 		this.balance = balance;
 	}
 	
