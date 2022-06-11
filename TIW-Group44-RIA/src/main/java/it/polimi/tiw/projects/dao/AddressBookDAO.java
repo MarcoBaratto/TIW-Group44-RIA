@@ -39,7 +39,7 @@ public class AddressBookDAO{
 	}
 	
 	public AddressBook getAddressBook(int ownerId) throws SQLException {
-		String query = "SELECT C.USERID AS OWNER,CONTACTACCOUNT,A.USERID FROM CONTACT C JOIN BANKACCOUNT A ON C.CONTACTACCOUNT=A.ID WHERE USERID=?";
+		String query = "SELECT CONTACTACCOUNT,A.USERID AS PIPPO FROM CONTACT C JOIN BANKACCOUNT A ON C.CONTACTACCOUNT=A.ID WHERE C.USERID=?";
 		
 		try(PreparedStatement pstatement = con.prepareStatement(query);){
 			pstatement.setInt(1, ownerId);
@@ -48,9 +48,9 @@ public class AddressBookDAO{
 					return null;
 				else {
 					AddressBook addressBook = new AddressBook();
-					addressBook.setOwnerId(result.getInt("OWNER"));
+					addressBook.setOwnerId(ownerId);
 					while(result.next()) {
-						addressBook.addContact(result.getInt("USERID"), result.getInt("CONTACTACCOUNT"));
+						addressBook.addContact(result.getInt("PIPPO"), result.getInt("CONTACTACCOUNT"));
 					}
 					
 					return addressBook;

@@ -62,9 +62,13 @@
 		</table>
 		
 		<form id = "createTransferForm_id" action="#">
-
-			UserDestination: <input type="number" name="userDestination" id="userDestination" min="0" required> <datalist id="userContacts_id"> </datalist> <br>
-			IdDestination: <input type="number" name="idDestination" id ="idDestination" min="0" required> <datalist id="accountContacts_id"> </datalist> <br>
+			<p id = "contactsError_id"></p>
+			UserDestination: <input type="number" name="userDestination" id="userDestination" min="0" required list="userContacts_id"> 
+			<datalist id="userContacts_id"> 
+			</datalist> <br>
+			IdDestination: <input type="number" name="idDestination" id ="idDestination" min="0" required list="accountContacts_id">
+			 <datalist id="accountContacts_id"> 
+			 </datalist> <br>
 
 			Amount: <input type="number" name="amount" id = "amount" min="0" step="0.01" required><br>
 			Comments: <input type="text" name="comments" id= "comments" required><br>
@@ -90,7 +94,7 @@
 			<p id="destinationT_id">Destination Account ID: 2</p>
 			<p id="destinationBalanceB_id">Destination Account Balance before transfer: 1</p>
 			<p id="destinationBalanceA_id">Destination Account Balance after transfer: 1000</p>
-			<button id="addContactButton_id" value="Add to Contact Book" name = "Add to Contact Book" > </button>
+			<button id="addContactButton_id" >Add to Contact Book </button>
 			<p id="contactMessage_id"> </p>
 		</div>
 		
@@ -101,7 +105,7 @@
 		
 		</div>
 	
-		<button id="closeTransfer_id" value="Close" name = "Close"> </button>
+		<button id="closeTransfer_id"> Close </button>
 	</div>
 </body>
 </html>

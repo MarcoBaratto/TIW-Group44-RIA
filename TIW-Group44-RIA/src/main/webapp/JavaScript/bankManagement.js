@@ -1,7 +1,7 @@
 { // avoid variables ending up in the global scope
 
 	  // page components
-	  let transferList, accountList, createTransferForm, resultTransferDiv, selectedAccount, 
+	  let transferList, accountList, transferForm, resultTransferDiv, selectedAccount, addressBook, 
 	    pageOrchestrator = new PageOrchestrator(); // main controller
 
 	  window.addEventListener("load", () => {
@@ -49,6 +49,15 @@
 			
 			this.resultDiv.style.display = 'block';
 			this.transferKoDiv.style.display = 'none';
+			this.transferOkDiv.style.display = 'block';
+		
+			
+			var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
+			var array = Array.from(contactsAlreadyPresent);
+			if(array.includes(transfer.idBankAccountTo)){
+				this.addContactButton.style.display = 'none';
+			}else
+				this.addContactButton.style.display = 'block';
 			
 			this.addContactButton.addEventListener("click", (e)=>{
 				makeCall("GET", "AddToContacts?contactId="+transfer.idOwnerTo+"&contactAccount="+transfer.idBankAccountTo, null,
@@ -72,6 +81,7 @@
 			this.errorP.textContent = message;
 			this.resultDiv.style.display = 'block';
 			this.transferOkDiv.style.display = 'none';
+			this.transferKoDiv.style.display = 'block';
 		}
 			
 	  }
@@ -166,6 +176,7 @@
 	    }
 
 	    this.show = function(accountId) {
+		  pageOrchestrator.getAddressBook();
 		  this.listcontainer.style.display = 'block';
 	      var self = this;
 	      makeCall("GET", "GetTransfersData?bankAccountid=" + accountId, null,
@@ -227,16 +238,19 @@
 	    }
 	  }
 
-	  function CreateTransferForm(pageOrchestrator){
-		  this.transferForm = document.getElementById("createTransferForm_id");
-		  this.accountDestination = document.getElementById("idDestination");
-		  this.originAccount = document.getElementById("originAccount_id");
+	  function TransferForm(pageOrchestrator){
+		  var transferForm = document.getElementById("createTransferForm_id");
+		  var accountDestination = document.getElementById("idDestination");
+		  var originAccount = document.getElementById("originAccount_id");
+		  var userDestDatalist = document.getElementById("userContacts_id");
+		  var accountDestDatalist = document.getElementById("accountContacts_id");
+		  var userDestination = document.getElementById("userDestination");
 
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  if(transferForm.checkValidity()){
 				  if(originAccount.value === accountDestination.value) {
 					  transferForm.reset();
-					  transferForm.showFailure("Origin account and destination can't be the same");
+					  pageOrchestrator.showFailure("Origin account and destination can't be the same");
 					  //can't check balance-amount because the value could be outdated
 					  return;
 				  }
@@ -247,7 +261,7 @@
 							  var message = x.responseText;							  
 							  switch (x.status) {
 								  case 200:
-								  	  selectedAccount = self.originAccount.value;	
+								  	  selectedAccount = originAccount.value;	
 									  pageOrchestrator.showSuccess(JSON.parse(message));
 									  
 									  break;
@@ -257,7 +271,33 @@
 						  }
 					  });
 			  }
-		  })
+		  });
+		  
+		  document.getElementById("idDestination").addEventListener("click", (e)=>{
+			accountDestDatalist.innerHTML="";
+			if(typeof addressBook !== 'undefined'&&addressBook.has(userDestination.value)){
+				set = addressBook.get(userDestination.value);
+				set.forEach(function(value){
+					if(value!==parseInt(selectedAccount)){
+						option = document.createElement("option");
+						option.text = value;
+						option.value = value;
+						accountDestDatalist.appendChild(option);
+					}	
+				})
+			}
+		});
+		  
+		  this.autoComplete = function(){
+			userDestDatalist.innerHTML="";
+			keys = Array.from(addressBook.keys());
+			keys.forEach(function(idUser){
+				option = document.createElement("option");
+				option.text = idUser;
+				option.value = idUser;
+				userDestDatalist.appendChild(option);
+			});
+		}
 
 	  }
 
@@ -307,7 +347,7 @@
 			this
 		  );
 	      
-	      createTransferForm = CreateTransferForm(this);
+	      transferForm = new TransferForm(this);
 /*
 	      missionDetails.registerEvents(this); // the orchestrator passes itself --this-- so that the wizard can call its refresh function after updating a mission
 
@@ -339,6 +379,26 @@
 			accountList.reset();
 			transferList.reset();
 			resultTransferDiv.showFailure(message);
+		}
+		
+		this.getAddressBook = function(){
+			makeCall("GET", "GetContacts", null, 
+			function (x){
+				if (x.readyState == XMLHttpRequest.DONE) {
+					var message = x.responseText;							  
+					switch (x.status) {
+					case 200:
+						addressBook = new Map(Object.entries(JSON.parse(message)));
+						transferForm.autoComplete();
+						break;
+					case 400:
+					case 500:	
+					default:
+						document.getElementById("contactsError_id").textContent = "Unable to recover contacts";
+						
+					}
+				}
+			});
 		}
 	  }
 
