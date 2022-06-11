@@ -188,10 +188,10 @@
 	              var transfersToShow = JSON.parse(req.responseText);
 	              if (transfersToShow.length == 0) {
 	                self.alert.textContent = "No transfers yet!";
+	                self.listcontainerbody.innerHTML = "";
 	                return;
-	              }
-	              self.update(transfersToShow); // self visible by closure
-	              //if (next) next(); // show the default element of the list if present
+	              }else
+	              	self.update(transfersToShow); 
 	            
 	          } else if (req.status == 403) {
                   window.location.href = req.getResponseHeader("Location");
@@ -300,6 +300,28 @@
 		}
 
 	  }
+	  
+	  function CreateAccount(pageOrchestrator){
+		var createAccountButton = document.getElementById("createAccount_id");
+		var createAccountForm = document.getElementById("createAccountForm_id");
+		 
+		createAccountButton.addEventListener("click", (e)=>
+		  {
+			makeCall("POST", "CreateBankAccount", createAccountForm,
+			function(x){
+				if (x.readyState == XMLHttpRequest.DONE) {
+					var message = x.responseText;
+					switch(x.status){
+						case 200:
+							pageOrchestrator.refresh();
+							break;	
+						default:
+						}						  
+							document.getElementById("createAccountMessage_id").textContent = message; 	
+				}
+			});
+		});
+	}
 
 
 
@@ -307,7 +329,7 @@
 	    var alertContainer = document.getElementById("id_alert");
 	    
 	    this.start = function() {
-			document.getElementById("username_id").textContent= sessionStorage.getItem('username');
+		  document.getElementById("username_id").textContent= sessionStorage.getItem('username');
 		  document.getElementById("user_id").textContent= sessionStorage.getItem('ID');
 
 		  accountList = new AccountList(
@@ -348,16 +370,9 @@
 		  );
 	      
 	      transferForm = new TransferForm(this);
-/*
-	      missionDetails.registerEvents(this); // the orchestrator passes itself --this-- so that the wizard can call its refresh function after updating a mission
-
-	      wizard = new Wizard(document.getElementById("id_createmissionform"), alertContainer);
-	      wizard.registerEvents(this);  // the orchestrator passes itself --this-- so that the wizard can call its refresh function after creating a mission
-
-	      document.querySelector("a[href='Logout']").addEventListener('click', () => {
-	        window.sessionStorage.removeItem('username');
-	      })
-	      	    */
+	      
+	      createBankAccountForm = new CreateAccount(this);				
+	      
 	    };
 
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start

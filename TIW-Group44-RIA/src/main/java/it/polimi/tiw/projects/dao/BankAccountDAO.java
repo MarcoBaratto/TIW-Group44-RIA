@@ -32,10 +32,10 @@ public class BankAccountDAO{
 	 * @param balance the balance of the new Bank Account
 	 * @throws SQLException if an error is encountered during the interaction with the db
 	 */
-	public void createBankAccount(int UserId, float balance) throws SQLException{
+	public void createBankAccount(int UserId, BigDecimal balance) throws SQLException{
 		String query = "INSERT INTO BankAccount VALUES (ID, ?, ?)";
 		try(PreparedStatement pstatement = con.prepareStatement(query); ){
-			pstatement.setFloat(1, balance);
+			pstatement.setBigDecimal(1, balance);
 			pstatement.setInt(2, UserId);
 			pstatement.executeUpdate();
 		}
