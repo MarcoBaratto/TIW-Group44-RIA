@@ -189,9 +189,13 @@
 	              if (transfersToShow.length == 0) {
 	                self.alert.textContent = "No transfers yet!";
 	                self.listcontainerbody.innerHTML = "";
+	                self.listcontainer.style.display = 'none';
 	                return;
-	              }else
-	              	self.update(transfersToShow); 
+	              }else{
+				  	self.update(transfersToShow); 
+				  	self.listcontainer.style.display = 'block';
+				  }
+	              	
 	            
 	          } else if (req.status == 403) {
                   window.location.href = req.getResponseHeader("Location");
@@ -213,24 +217,35 @@
 	      var self = this;
 	      arrayTransfers.forEach(function(transfer) { // self visible here, not this
 	        row = document.createElement("tr");
+	        
 	        idTransferCell = document.createElement("td");
 	        idTransferCell.textContent = transfer.id;
 	        row.appendChild(idTransferCell);
+	        
 	        amountCell = document.createElement("td");
 	        amountCell.textContent = transfer.amount;
+	        if(transfer.idBankAccountFrom == selectedAccount)
+	        	amountCell.className="negative";
+	        else
+	        	amountCell.className="positive";
 	        row.appendChild(amountCell);
+	        
 	        originCell = document.createElement("td");
 	        originCell.textContent = transfer.idBankAccountFrom;	        
 	        row.appendChild(originCell);
+	        
 	        destinationCell = document.createElement("td");
 	        destinationCell.textContent = transfer.idBankAccountTo;	        
 	        row.appendChild(destinationCell);
+	        
 	        dateCell = document.createElement("td");
 	        dateCell.textContent = transfer.date;	        
 	        row.appendChild(dateCell);
+	        
 	        commentsCell = document.createElement("td");
 	        commentsCell.textContent = transfer.comments;	        
 	        row.appendChild(commentsCell);
+	        
 	        self.listcontainerbody.appendChild(row);
 	      });
 	      this.listcontainer.style.visibility = "visible";

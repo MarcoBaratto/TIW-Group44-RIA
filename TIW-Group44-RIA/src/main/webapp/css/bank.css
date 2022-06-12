@@ -1,0 +1,10 @@
+.negative{
+	color: red;
+}
+.positive{
+	color: green;
+}
+table, th, td {
+  border: 1px solid;
+  text-align: center
+}
