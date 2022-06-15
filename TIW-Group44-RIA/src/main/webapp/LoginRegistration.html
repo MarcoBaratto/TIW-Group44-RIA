@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
 <meta charset="ISO-8859-1">
 <title>Login & Registration page</title>
@@ -10,23 +10,23 @@
 <body>
 	<h1>Welcome to the Bank</h1>
 
-	<form action="#">
-		Username: <input type="text" name="username" required> <br>
-		Password: <input type="password" name="pwd" required><br>
+	<form>
+		Username: <input type="text" name="username" required id="usernameLogin_id"> <br>
+		Password: <input type="password" name="pwd" required id="pswLogin_id"><br>
 		<input type="submit" id="LoginButton" value="Login">
-		<p id = "errorMessageLogin"> <p>
+		<p id = "errorMessageLogin"> </p>
 	</form>
 	
-	<form action="#">
-		Name: <input type="text" name="name" required><br>
-		Surname: <input type="text" name="surname" required><br>
-		Mail: <input type="email" name="mail" required><br>
-		Username: <input type="text" name="username" required><br>
-		Password: <input type="password" name="pwd" required><br>
-		RepeatPassword: <input type="password" name="repeatPwd" required><br>
+	<form onsubmit="event.preventDefault();">
+		Name: <input type="text" name="name" required id="name_id"><br>
+		Surname: <input type="text" name="surname" required id="surname_id"><br>
+		Mail: <input type="email" name="mail" required id="mail_id"><br>
+		Username: <input type="text" name="username" required id="username_id"><br>
+		Password: <input type="password" name="pwd" required id="psw_id"><br>
+		RepeatPassword: <input type="password" name="repeatPwd" required id="psw2_id"><br>
 
 		<input type="submit" value="Register" id="RegistrationButton">
-		<p id = "errorMessageRegistration"> <p>
+		<p id = "errorMessageRegistration_id"> <p>
 	</form>
 
 </body>

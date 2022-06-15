@@ -61,7 +61,7 @@
 			</tbody>
 		</table>
 		
-		<form id = "createTransferForm_id" action="#">
+		<form id = "createTransferForm_id" onsubmit="event.preventDefault();">
 			<p id = "contactsError_id"></p>
 			UserDestination: <input type="number" name="userDestination" id="userDestination" min="0" required list="userContacts_id"> 
 			<datalist id="userContacts_id"> 
@@ -70,10 +70,9 @@
 			 <datalist id="accountContacts_id"> 
 			 </datalist> <br>
 
-			Amount: <input type="number" name="amount" id = "amount" min="0" step="0.01" required><br>
+			Amount: <input type="number" name="amount" id = "amountT_id" min="0" step="0.01" required><br>
 			Comments: <input type="text" name="comments" id= "comments" required><br>
 
-			<input id="originAccount_id" type="hidden" name="bankAccountidOrigin">
 			<input id="createTransferButton_id" type="submit" value="Create">
 		</form>
 	</div>

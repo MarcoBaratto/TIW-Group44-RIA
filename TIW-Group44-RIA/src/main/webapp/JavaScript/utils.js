@@ -10,10 +10,12 @@
 	    req.open(method, url);
 	    if (formElement == null) {
 	      req.send();
-	    } else {
-	      req.send(new FormData(formElement));
-	    }
-	    if (formElement !== null && reset === true) {
+	    } else if(formElement instanceof FormData){
+	      req.send(formElement);
+	    }else{
+		  req.send(new FormData(formElement));
+		}
+	    if (formElement !== null && reset === true && !(form instanceof FormData)) {
 	      formElement.reset();
 	    }
 	  }

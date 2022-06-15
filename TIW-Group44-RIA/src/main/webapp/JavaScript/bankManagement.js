@@ -184,7 +184,6 @@
 	          if (req.readyState == 4) {
 	            var message = req.responseText;
 	            if (req.status == 200) {
-				  document.getElementById("originAccount_id").value=accountId;
 	              var transfersToShow = JSON.parse(req.responseText);
 	              if (transfersToShow.length == 0) {
 	                self.alert.textContent = "No transfers yet!";
@@ -256,29 +255,35 @@
 	  function TransferForm(pageOrchestrator){
 		  var transferForm = document.getElementById("createTransferForm_id");
 		  var accountDestination = document.getElementById("idDestination");
-		  var originAccount = document.getElementById("originAccount_id");
 		  var userDestDatalist = document.getElementById("userContacts_id");
 		  var accountDestDatalist = document.getElementById("accountContacts_id");
 		  var userDestination = document.getElementById("userDestination");
+		  var amount = document.getElementById("amountT_id");
 
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  if(transferForm.checkValidity()){
-				  if(originAccount.value === accountDestination.value) {
-					  transferForm.reset();
+				  if(selectedAccount === accountDestination.value) {
 					  pageOrchestrator.showFailure("Origin account and destination can't be the same");
 					  //can't check balance-amount because the value could be outdated
 					  return;
 				  }
-				  var self = this;
-				  makeCall("POST", "CreateTransfer", transferForm,
+				  if(amount.value<=0){
+				      pageOrchestrator.showFailure("Amount must be greater than 0");
+				      return;
+				  }
+				  
+				  var formData = new FormData(transferForm);
+				  formData.append("bankAccountidOrigin", selectedAccount);
+				  for (var [key, value] of formData.entries()) { 
+  					console.log(key, value);
+					}
+				  makeCall("POST", "CreateTransfer", formData,
 					  function (x){
 						  if (x.readyState == XMLHttpRequest.DONE) {
-							  var message = x.responseText;							  
+							  var message = x.responseText;						  
 							  switch (x.status) {
 								  case 200:
-								  	  selectedAccount = originAccount.value;	
 									  pageOrchestrator.showSuccess(JSON.parse(message));
-									  
 									  break;
 								  default:
 									  pageOrchestrator.showFailure(message);

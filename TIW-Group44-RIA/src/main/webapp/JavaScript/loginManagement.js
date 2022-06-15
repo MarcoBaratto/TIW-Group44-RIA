@@ -19,14 +19,10 @@
                 window.location.href = "Home.html";
                 break;
               case 400: // bad request
-                document.getElementById("errorMessageLogin").textContent = message;
-                break;
               case 401: // unauthorized
-                  document.getElementById("errorMessageLogin").textContent = message;
-                  break;
               case 500: // server error
+              default:
             	document.getElementById("errorMessageLogin").textContent = message;
-                break;
             }
           }
         }
@@ -38,9 +34,24 @@
   
   document.getElementById("RegistrationButton").addEventListener('click', (e)=> {
 	var form = e.target.closest("form");
-	if(form.checkValidity()){
-		sendForm('CheckRegistration', document.getElementById("errorMessageRegistration"), e.target.closest("form"));
-	}else {
+	var errorMessage = document.getElementById("errorMessageRegistration_id");
+	
+	var mail = document.getElementById("mail_id");
+	var psw = document.getElementById("psw_id");
+	var psw2 = document.getElementById("psw2_id");
+
+	var pattern = new RegExp('^(.+)@(\\S+)$');
+	
+	if(!pattern.test(mail.value)){
+		errorMessage.textContent = "Invalid mail address";
+	}
+	else if(psw.value!==psw2.value){
+		errorMessage.textContent = "Passwords don't match";
+	}
+	else if(form.checkValidity()){
+		sendForm('CheckRegistration', document.getElementById("errorMessageRegistration"), form);
+	}
+	else {
     	 form.reportValidity();
     }
 });
