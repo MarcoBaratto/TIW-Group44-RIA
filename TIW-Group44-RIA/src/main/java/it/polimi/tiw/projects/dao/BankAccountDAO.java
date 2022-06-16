@@ -107,8 +107,7 @@ public class BankAccountDAO{
 		return account;
 	}
 	
-	public BigDecimal[] transfer(BigDecimal amount, int idDestination, int bankAccountidOrigin) throws SQLException{
-		BigDecimal[] balancesAfter = new BigDecimal[2];
+	public void transfer(BigDecimal amount, int idDestination, int bankAccountidOrigin) throws SQLException{
 			//TODO split in different methods
 			PreparedStatement selectBalanceO = con.prepareStatement("SELECT Balance FROM BankAccount WHERE ID = ?");
 			selectBalanceO.setInt(1, bankAccountidOrigin);
@@ -116,16 +115,8 @@ public class BankAccountDAO{
 			if(result.next())
 				if(result.getBigDecimal("Balance").compareTo(amount)<0){
 					throw new SQLException("Insufficent funds ");
-				}else
-					balancesAfter[0] = result.getBigDecimal("Balance").subtract(amount);
-			
-			
-			selectBalanceO = con.prepareStatement("SELECT Balance FROM BankAccount WHERE ID = ?");
-			selectBalanceO.setInt(1, idDestination);
-			result = selectBalanceO.executeQuery();
-			if(result.next())
-				balancesAfter[1] = result.getBigDecimal("Balance").add(amount);
-			
+				}
+				
 			PreparedStatement ps = con.prepareStatement("update BankAccount set Balance=Balance-? Where ID=?");
 			ps.setBigDecimal(1, amount);
 			ps.setInt(2, bankAccountidOrigin);
@@ -134,22 +125,6 @@ public class BankAccountDAO{
 			ps.setBigDecimal(1, amount);
 			ps.setInt(2, idDestination);
 			ps.executeUpdate();
-		return balancesAfter;
-	}
-	
-	/**
-	 * Updates the Account's balance
-	 * @param amount the amount to add or subtract from the current balance
-	 * @param BankAccountId the Bank Account on which the operation is being performed
-	 * @throws SQLException if an error is encountered during the interaction with the db
-	 */
-	public void updateBalance(BigDecimal amount, int BankAccountId) throws SQLException {
-		String query = "UPDATE BankAccount SET Balance = Balance + ? WHERE ID = ?";
-		try(PreparedStatement pstatement = con.prepareStatement(query);){
-			pstatement.setBigDecimal(1, amount);
-			pstatement.setInt(2, BankAccountId);
-			pstatement.executeUpdate();
-		}
 	}
 	
 }

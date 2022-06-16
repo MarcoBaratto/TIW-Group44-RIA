@@ -10,7 +10,7 @@
 <body>
 	<h1>Welcome to the Bank</h1>
 
-	<form>
+	<form onsubmit="event.preventDefault();">
 		Username: <input type="text" name="username" required id="usernameLogin_id"> <br>
 		Password: <input type="password" name="pwd" required id="pswLogin_id"><br>
 		<input type="submit" id="LoginButton" value="Login">
