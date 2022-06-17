@@ -188,11 +188,9 @@
 	              if (transfersToShow.length == 0) {
 	                self.alert.textContent = "No transfers yet!";
 	                self.listcontainerbody.innerHTML = "";
-	                self.listcontainer.style.display = 'none';
 	                return;
 	              }else{
 				  	self.update(transfersToShow); 
-				  	self.listcontainer.style.display = 'block';
 				  }
 	              	
 	            

@@ -136,7 +136,7 @@ public class CreateTransfer extends HttpServlet {
 			try {
 				connection.setAutoCommit(false);
 				try {
-					balancesAfter = bankAccountDAO.transfer(amount, bankAccountidDestination, bankAccountidOrigin);
+					bankAccountDAO.transfer(amount, bankAccountidDestination, bankAccountidOrigin);
 				}catch(SQLException e){
 					if(e.getMessage().equals("Insufficent funds ")) {
 						if(errorMsg.isEmpty()) {
@@ -167,6 +167,9 @@ public class CreateTransfer extends HttpServlet {
 			response.getWriter().println("There was a problem accessing data");
 			return;
 		}
+		
+		balancesAfter[0] = balancesBefore[0].subtract(amount);
+		balancesAfter[1] = balancesBefore[1].add(amount);
 		
 		ThinTransfer t = new ThinTransfer( balancesBefore, balancesAfter, amount, accountOrigin.getId(), bankAccountidDestination, accountDest.getIdUser(), comments);
 		String transferJson = new Gson().toJson(t);
