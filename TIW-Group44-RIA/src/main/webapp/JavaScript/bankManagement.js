@@ -50,6 +50,7 @@
 			this.resultDiv.style.display = 'block';
 			this.transferKoDiv.style.display = 'none';
 			this.transferOkDiv.style.display = 'block';
+			this.addContactButton.style.display = 'block';
 		
 			if(addressBook !== undefined) {
 				var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
@@ -61,6 +62,7 @@
 			}else
 				this.addContactButton.style.display = 'block';
 			
+			var self = this;
 			this.addContactButton.addEventListener("click", (e)=>{
 				makeCall("GET", "AddToContacts?contactId="+transfer.idOwnerTo+"&contactAccount="+transfer.idBankAccountTo, null,
 				function(req){
@@ -73,7 +75,8 @@
 							case 500:
 							default:
 								contactMessage.textContent = req.responseText;	
-						}			
+						}
+						self.addContactButton.style.display = 'none';			
 					}
 				});
 			});
