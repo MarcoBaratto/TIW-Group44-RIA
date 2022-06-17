@@ -272,9 +272,7 @@
 				  
 				  var formData = new FormData(transferForm);
 				  formData.append("bankAccountidOrigin", selectedAccount);
-				  for (var [key, value] of formData.entries()) { 
-  					console.log(key, value);
-					}
+
 				  makeCall("POST", "CreateTransfer", formData,
 					  function (x){
 						  if (x.readyState == XMLHttpRequest.DONE) {

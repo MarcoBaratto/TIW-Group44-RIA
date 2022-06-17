@@ -47,7 +47,6 @@ public class CreateBankAccount extends HttpServlet {
 				throw new NumberFormatException();
 		}catch(NumberFormatException | NullPointerException e){
 			isBadRequest = true;
-			e.printStackTrace();
 		}
 		if (isBadRequest) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
