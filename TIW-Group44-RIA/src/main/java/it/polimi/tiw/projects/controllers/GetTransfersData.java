@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,7 @@ import it.polimi.tiw.projects.dao.BankAccountDAO;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/GetTransfersData")
+@MultipartConfig
 public class GetTransfersData extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;

@@ -1,7 +1,6 @@
 package it.polimi.tiw.projects.thinBeans;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 public class ThinTransfer{
 	private BigDecimal[] balancesAfter;
