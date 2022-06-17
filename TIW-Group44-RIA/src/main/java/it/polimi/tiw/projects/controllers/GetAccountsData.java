@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import it.polimi.tiw.projects.thinBeans.ThinBankAccount;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/GetAccountsData")
+@MultipartConfig
 public class GetAccountsData extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;

@@ -92,7 +92,8 @@ public class CreateTransfer extends HttpServlet {
 		}
 
 		if(notAuthorizedOrigin) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not the account's owner");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("You are not the account's owner");
 			return;
 		}
 
@@ -104,7 +105,8 @@ public class CreateTransfer extends HttpServlet {
 			accountOrigin = bankAccountDAO.detailsAccount(bankAccountidOrigin);
 			accountDest = bankAccountDAO.detailsAccount(bankAccountidDestination);
 		}catch(SQLException e){
-			errorMsg = "Error finding accounts ";
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().println("ERROR: cannot find accounts");
 		}
 
 		try {
