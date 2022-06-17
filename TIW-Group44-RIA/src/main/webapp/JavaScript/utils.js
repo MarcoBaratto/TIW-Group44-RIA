@@ -15,7 +15,7 @@
 	    }else{
 		  req.send(new FormData(formElement));
 		}
-	    if (formElement !== null && reset === true && !(form instanceof FormData)) {
+	    if (formElement !== null && reset === true && !(formElement instanceof FormData)) {
 	      formElement.reset();
 	    }
 	  }

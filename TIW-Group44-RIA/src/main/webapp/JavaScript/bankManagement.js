@@ -51,11 +51,13 @@
 			this.transferKoDiv.style.display = 'none';
 			this.transferOkDiv.style.display = 'block';
 		
-			
-			var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
-			var array = Array.from(contactsAlreadyPresent);
-			if(array.includes(transfer.idBankAccountTo)){
-				this.addContactButton.style.display = 'none';
+			if(addressBook !== undefined) {
+				var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
+				var array = Array.from(contactsAlreadyPresent);
+				if(array.includes(transfer.idBankAccountTo)){
+					this.addContactButton.style.display = 'none';
+				}else
+					this.addContactButton.style.display = 'block';
 			}else
 				this.addContactButton.style.display = 'block';
 			
@@ -90,13 +92,14 @@
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
+	    this.listaccounttable = document.getElementById("listAccountsTable_id");
 
 	    this.reset = function() {
 	      this.listcontainer.style.display = 'none';
 	    }
 
 	    this.show = function(next) {
-		  this.listcontainer.style.display = 'block';
+	      this.listcontainer.style.display = 'block';
 	      var self = this;
 	      makeCall("GET", "GetAccountsData", null,
 	        function(req) {
@@ -106,8 +109,11 @@
 	              var accountsToShow = JSON.parse(req.responseText);
 	              if (accountsToShow.length == 0) {
 	                self.alert.textContent = "No accounts yet, please create a new one";
+	                //self.listaccounttable.style.display = 'none';
 	                return;
 	              }
+	              //self.listcontainer.style.display = 'block';
+	              //self.listaccounttable.style.display = 'block';
 	              self.update(accountsToShow); // self visible by closure
 	              if (next) next(); // show the default element of the list if present
 	            
@@ -345,6 +351,13 @@
 
 	  function PageOrchestrator() {
 	    var alertContainer = document.getElementById("id_alert");
+	  	var alertList = [
+			document.getElementById("id_alert"),
+			document.getElementById("createAccountMessage_id"),
+			document.getElementById("contactsError_id"),
+			document.getElementById("contactMessage_id"),
+			document.getElementById("transferError_id")
+		  ];
 	    
 	    this.start = function() {
 		  document.getElementById("username_id").textContent= sessionStorage.getItem('username');
@@ -396,7 +409,8 @@
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
 	      //accountList.reset();
-	      resultTransferDiv.reset()
+	      resultTransferDiv.reset();
+	      this.refreshAlert();
 	      accountList.show(function() {
 	        accountList.autoclick(currentAccount); 
 	      }); // closure preserves visibility of this
@@ -425,6 +439,7 @@
 						transferForm.autoComplete();
 						break;
 					case 400:
+						break;
 					case 500:	
 					default:
 						document.getElementById("contactsError_id").textContent = "Unable to recover contacts";
@@ -432,6 +447,12 @@
 					}
 				}
 			});
+		}
+		
+		this.refreshAlert = function() {
+			alertList.forEach(function(alert) {
+				alert.textContent = "";
+			})
 		}
 	  }
 
