@@ -14,8 +14,10 @@
 	<h1>Welcome to the your Account Home Page</h1>
 	<p>Welcome <span id="username_id"></span> your ID is: <span id="user_id"></span></p>
 	<div id="id_alert" class="alertmessage"></div>
+	<br>
 	<div id="accountsList_id">
-		<table id="listAccountsTable_id">
+		<div id="listAccountsTable_id">
+		<table>
 			<thead>
 				<tr>
 					<th>Id bank account</th>
@@ -25,7 +27,8 @@
 			</thead>
 			<tbody id="accountsListBody_id"></tbody>
 		</table>
-
+		</div>
+		<br>
 		<form id = "createAccountForm_id" action="#">
 			Balance: <input type="number" name="balance" min="0" step="0.01" required><br>
 
@@ -36,7 +39,9 @@
 
 	
 	<div id="transferList_id">
-		<table id="listTransfersTable_id">
+		<div id="listTransfersTable_id">
+		<p></p>
+		<table>
 			<thead>
 				<tr>
 					<th>Id transfer</th>
@@ -58,7 +63,7 @@
 				</tr>
 			</tbody>
 		</table>
-		
+		</div>
 		<form id = "createTransferForm_id" onsubmit="event.preventDefault();">
 			<p id = "contactsError_id"></p>
 			UserDestination: <input type="number" name="userDestination" id="userDestination" min="0" required list="userContacts_id"> 

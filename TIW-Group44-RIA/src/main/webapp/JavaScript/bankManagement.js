@@ -91,11 +91,11 @@
 			
 	  }
 
-	  function AccountList(_alert, _listcontainer, _listcontainerbody) {
+	  function AccountList(_alert, _listcontainer, _listcontainerbody, _listaccounttable) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
-	    this.listaccounttable = document.getElementById("listAccountsTable_id");
+	    this.listaccounttable = _listaccounttable;
 
 	    this.reset = function() {
 	      this.listcontainer.style.display = 'none';
@@ -110,14 +110,7 @@
 	            var message = req.responseText;
 	            if (req.status == 200) {
 	              var accountsToShow = JSON.parse(req.responseText);
-	              if (accountsToShow.length == 0) {
-	                self.alert.textContent = "No accounts yet, please create a new one";
-	                //self.listaccounttable.style.display = 'none';
-	                return;
-	              }
-	              //self.listcontainer.style.display = 'block';
-	              //self.listaccounttable.style.display = 'block';
-	              self.update(accountsToShow); // self visible by closure
+	              self.update(accountsToShow); 
 	              if (next) next(); // show the default element of the list if present
 	            
 	          } else if (req.status == 403) {
@@ -136,9 +129,16 @@
 	    this.update = function(arrayAccounts) {
 	      var row, destcell, datecell, linkcell, anchor;
 	      this.listcontainerbody.innerHTML = ""; // empty the table body
-	      // build updated list
 	      var self = this;
-	      arrayAccounts.forEach(function(account) { // self visible here, not this
+	      if (arrayAccounts.length == 0) {
+                this.alert.textContent = "No accounts yet, please create a new one";
+                this.listaccounttable.style.display = 'none';
+                document.getElementById("listTransfersTable_id").style.display = 'none';
+                return;
+	      }
+	      this.listcontainer.style.display = 'block';
+	      this.listaccounttable.style.display = 'block';
+	      arrayAccounts.forEach(function(account) { 
 	        row = document.createElement("tr");
 	        destcell = document.createElement("td");
 	        destcell.textContent = account.id;
@@ -151,12 +151,12 @@
 	        linkcell.appendChild(anchor);
 	        linkText = document.createTextNode("Show");
 	        anchor.appendChild(linkText);
-	        //anchor.missionid = mission.id; // make list item clickable
 	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
 	        anchor.addEventListener("click", (e) => {
 	          // dependency via module parameter
+	          pageOrchestrator.refreshAlert();
 	          selectedAccount = e.target.getAttribute("accountid");
-	          transferList.show(e.target.getAttribute("accountid")); // the list must know the details container
+	          transferList.show(e.target.getAttribute("accountid"));
 	        }, false);
 	        anchor.href = "#";
 	        row.appendChild(linkcell);
@@ -175,10 +175,11 @@
 	    }
 	  }
 	  
-	  function TransferList(_alert, _listcontainer, _listcontainerbody) {
+	  function TransferList(_alert, _listcontainer, _listcontainerbody, _listtransfertable) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
+	    this.listtransfertable = _listtransfertable;
 
 	    this.reset = function() {
 	      this.listcontainer.style.display = 'none';
@@ -194,15 +195,7 @@
 	            var message = req.responseText;
 	            if (req.status == 200) {
 	              var transfersToShow = JSON.parse(req.responseText);
-	              if (transfersToShow.length == 0) {
-	                self.alert.textContent = "No transfers yet!";
-	                self.listcontainerbody.innerHTML = "";
-	                return;
-	              }else{
-				  	self.update(transfersToShow); 
-				  }
-	              	
-	            
+				  self.update(transfersToShow); 	            
 	          } else if (req.status == 403) {
                   window.location.href = req.getResponseHeader("Location");
                   window.sessionStorage.removeItem('username');
@@ -220,6 +213,15 @@
 	      var row, idTransferCell, amountCell, originCell, destinationCell, dateCell, commentsCell;
 	      this.listcontainerbody.innerHTML = ""; // empty the table body
 	      // build updated list
+	      if (arrayTransfers.length == 0) {
+                this.alert.textContent = "No transfers yet!";
+                this.listtransfertable.style.display = 'none';
+                return;
+	      }  
+	      this.listcontainer.style.display = 'block';
+	      this.listtransfertable.style.display = 'block';
+	      let p = document.querySelector("#listTransfersTable_id p");
+          p.innerHTML = "Selected Account: " + selectedAccount;        
 	      var self = this;
 	      arrayTransfers.forEach(function(transfer) { // self visible here, not this
 	        row = document.createElement("tr");
@@ -268,6 +270,7 @@
 		  var amount = document.getElementById("amountT_id");
 
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
+			  pageOrchestrator.refreshAlert();
 			  if(transferForm.checkValidity()){
 				  if(selectedAccount === accountDestination.value) {
 					  pageOrchestrator.showFailure("Origin account and destination can't be the same");
@@ -367,12 +370,14 @@
 		  accountList = new AccountList(
 	        alertContainer,
 	        document.getElementById("accountsList_id"),
-	        document.getElementById("accountsListBody_id"));
+	        document.getElementById("accountsListBody_id"),
+	        document.getElementById("listAccountsTable_id"));
 	        
 	      transferList = new TransferList(
 	        alertContainer,
 	        document.getElementById("transferList_id"),
-	        document.getElementById("transferListBody_id"));  
+	        document.getElementById("transferListBody_id"),
+	        document.getElementById("listTransfersTable_id"));  
 	        
 	      document.querySelector("a[href='Logout']").addEventListener('click', () => {
 	        window.sessionStorage.removeItem('username');
@@ -409,7 +414,6 @@
 
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
-	      //accountList.reset();
 	      resultTransferDiv.reset();
 	      this.refreshAlert();
 	      accountList.show(function() {
