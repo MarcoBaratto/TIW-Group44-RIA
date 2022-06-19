@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.beans.Transfer;
 import it.polimi.tiw.projects.dao.TransferDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
@@ -50,7 +51,7 @@ public class GetTransfersData extends HttpServlet {
 		} catch (NumberFormatException | NullPointerException e) {
 			// only for debugging e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Incorrect param values");
+			response.getWriter().println(ERRORS.INCORRECT_PARAMS);
 			return;
 		}
 				
@@ -65,29 +66,17 @@ public class GetTransfersData extends HttpServlet {
 			notAuthorized = bankAccountDAO.checkAssociationAccountUser(user.getId(), bankAccountId);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Not possible to recover data");
+			response.getWriter().println(ERRORS.SQL_ERROR);
 			return;
 		}
 		
 		//if the user doesn't have the authorization an error is sent
 		if(notAuthorized) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("You are not authorized");
+			response.getWriter().println(ERRORS.NOT_OWNER);
 			return;
 		}
-		
-		/*
-		BankAccount bankAccount = new BankAccount();
-		//Get BankAccount information
-		try {
-			bankAccount = bankAccountDAO.detailsAccount(bankAccountId);
-		} catch (SQLException e) {
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Not possible to recover bankAccount information");
-			return;
-		}
-		*/
-		
+			
 		
 		List<Transfer> transfers = new ArrayList<>();
 		//Get transfers involving this bankAccount
@@ -95,7 +84,7 @@ public class GetTransfersData extends HttpServlet {
 			transfers = transferDAO.findTransferById(bankAccountId);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Not possible to recover transfers" + e.getMessage());
+			response.getWriter().println(ERRORS.SQL_ERROR);
 			return;
 		}
 		

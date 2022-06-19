@@ -18,6 +18,7 @@ import com.google.gson.GsonBuilder;
 import it.polimi.tiw.projects.beans.AddressBook;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.AddressBookDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/GetContacts")
@@ -48,7 +49,7 @@ public class GetContacts extends HttpServlet {
 			addressBook = addressBookDAO.getAddressBook(user.getId());
 		}catch(SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("ERROR accessing data");
+			response.getWriter().println(ERRORS.SQL_ERROR);
 			return;
 		}
 		

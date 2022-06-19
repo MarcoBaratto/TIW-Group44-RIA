@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/CreateBankAccount")
@@ -50,7 +51,7 @@ public class CreateBankAccount extends HttpServlet {
 		}
 		if (isBadRequest) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Incorrect or missing param values");
+			response.getWriter().println(ERRORS.INCORRECT_PARAMS);
 			return;
 		}
 		
@@ -62,7 +63,7 @@ public class CreateBankAccount extends HttpServlet {
 			bankAccountDAO.createBankAccount(user.getId(), balance);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Not possible to create a Bank Account");
+			response.getWriter().println(ERRORS.SQL_ERROR);
 			return;
 		}
 		

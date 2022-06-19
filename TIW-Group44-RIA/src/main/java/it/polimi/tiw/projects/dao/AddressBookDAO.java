@@ -15,10 +15,7 @@ public class AddressBookDAO{
 	}
 	
 	public void createContact(int ownerId, int accountId) throws SQLException, Exception {
-		try {
-			con.setAutoCommit(false);
-			
-			if(checkUniqueContact(ownerId,accountId)) {
+		if(checkUniqueContact(ownerId,accountId)) {
 				String query = "INSERT INTO CONTACT VALUES (?,?)";
 				try(PreparedStatement pstatement = con.prepareStatement(query);){
 					pstatement.setInt(1, ownerId);
@@ -30,16 +27,11 @@ public class AddressBookDAO{
 			}else {
 				throw new Exception("Contact already present");
 			}
-		} catch (SQLException e) {
-			con.rollback();
-			throw e;
-		}finally {
-			con.setAutoCommit(true);
-		}
 	}
 	
+	
 	public AddressBook getAddressBook(int ownerId) throws SQLException {
-		String query = "SELECT CONTACTACCOUNT,A.USERID AS PIPPO FROM CONTACT C JOIN BANKACCOUNT A ON C.CONTACTACCOUNT=A.ID WHERE C.USERID=?";
+		String query = "SELECT CONTACTACCOUNT,A.USERID AS U FROM CONTACT C JOIN BANKACCOUNT A ON C.CONTACTACCOUNT=A.ID WHERE C.USERID=?";
 		
 		try(PreparedStatement pstatement = con.prepareStatement(query);){
 			pstatement.setInt(1, ownerId);
@@ -50,7 +42,7 @@ public class AddressBookDAO{
 					AddressBook addressBook = new AddressBook();
 					addressBook.setOwnerId(ownerId);
 					while(result.next()) {
-						addressBook.addContact(result.getInt("PIPPO"), result.getInt("CONTACTACCOUNT"));
+						addressBook.addContact(result.getInt("U"), result.getInt("CONTACTACCOUNT"));
 					}
 					
 					return addressBook;

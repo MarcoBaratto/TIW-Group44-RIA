@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import it.polimi.tiw.projects.dao.UserDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/CheckRegistration")
@@ -49,23 +50,24 @@ public class CheckRegistration extends HttpServlet {
 		if(username == null || username.isEmpty() || name == null || name.isEmpty() || psw == null || psw.isEmpty()
 				|| repeatPsw == null || repeatPsw.isEmpty()|| mail == null || mail.isEmpty() 
 				|| surname == null || surname.isEmpty()) {
-			errorMsg = errorMsg + " Missing param";
+			errorMsg = errorMsg + " " + ERRORS.INCORRECT_PARAMS;
 		}
 			
 		if(!psw.equals(repeatPsw))
-			errorMsg = errorMsg + " Passwords don't match";
+			errorMsg = errorMsg + " " + ERRORS.PSW_NO_MATCH;
 		
 		//parse mail
 		if(!patternMatches(mail))
-			errorMsg = errorMsg + " Incorrect mail format";
+			errorMsg = errorMsg + " " + ERRORS.MAIL_ERROR;
 		
 		UserDAO userDAO = new UserDAO(connection);
 		
 		try {
 		if(!userDAO.checkUniqueNickName(username))
-			errorMsg = errorMsg + " This nickname already exists";
+			errorMsg = errorMsg + " " + ERRORS.USERNAME_CHOSEN;
 		}catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to check Username's uniqueness");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().println( ERRORS.SQL_ERROR);
 			return;
 		}
 		
@@ -79,7 +81,7 @@ public class CheckRegistration extends HttpServlet {
 			userDAO.createUser(username, psw, name, surname, mail);
 		}catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Database Error");
+			response.getWriter().println( ERRORS.SQL_ERROR);
 			return;	
 		}
 		

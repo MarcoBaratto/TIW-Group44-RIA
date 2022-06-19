@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import it.polimi.tiw.projects.beans.BankAccount;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.thinBeans.ThinBankAccount;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
@@ -51,7 +52,7 @@ public class GetAccountsData extends HttpServlet {
 			bankAccounts = bankAccountDAO.findAccountsByUser(user.getId());
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Internal server error, retry later");
+			response.getWriter().println(ERRORS.SQL_ERROR);
 			return;
 		}
 		
