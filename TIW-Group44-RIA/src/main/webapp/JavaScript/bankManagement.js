@@ -155,7 +155,6 @@
 	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
 	        
 	        anchor.addEventListener("click", (e) => {
-	          // dependency via module parameter
 	          pageOrchestrator.refreshAlert();
 	          selectedAccount = e.target.getAttribute("accountid");
 	          transferList.show(e.target.getAttribute("accountid"));

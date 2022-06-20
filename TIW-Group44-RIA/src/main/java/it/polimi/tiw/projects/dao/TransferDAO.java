@@ -68,7 +68,7 @@ public class TransferDAO{
 					transfer.setIdBankAccountFrom(result.getInt("Origin"));
 					transfer.setIdBankAccountTo(result.getInt("Destination"));
 					transfer.setDate(result.getTimestamp("Date"));
-					transfer.setComments(result.getString("Reason"));
+					transfer.setComments(result.getString("Comments"));
 					
 					transfers.add(transfer);
 				}
