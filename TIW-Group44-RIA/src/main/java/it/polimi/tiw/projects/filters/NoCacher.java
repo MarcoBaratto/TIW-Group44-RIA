@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Servlet Filter implementation class LoginChecker
+ * Servlet Filter implementation class NoCacher
  */
 public class NoCacher implements Filter {
 
