@@ -52,7 +52,7 @@ public class GetAccountsData extends HttpServlet {
 			bankAccounts = bankAccountDAO.findAccountsByUser(user.getId());
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 		

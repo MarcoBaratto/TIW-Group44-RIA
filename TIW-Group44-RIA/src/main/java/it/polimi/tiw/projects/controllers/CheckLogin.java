@@ -59,7 +59,7 @@ public class CheckLogin extends HttpServlet {
 			user = userDao.checkCredentials(usrn, pwd);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_USER);
 			return;
 		}
 

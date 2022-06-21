@@ -63,7 +63,7 @@ public class CreateBankAccount extends HttpServlet {
 			bankAccountDAO.createBankAccount(user.getId(), balance);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 		

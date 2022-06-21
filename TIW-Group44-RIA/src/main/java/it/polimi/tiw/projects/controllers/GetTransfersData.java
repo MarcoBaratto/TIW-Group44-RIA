@@ -66,7 +66,7 @@ public class GetTransfersData extends HttpServlet {
 			notAuthorized = bankAccountDAO.checkAssociationAccountUser(user.getId(), bankAccountId);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 		
@@ -84,7 +84,7 @@ public class GetTransfersData extends HttpServlet {
 			transfers = transferDAO.findTransferById(bankAccountId);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_TRANSFER);
 			return;
 		}
 		

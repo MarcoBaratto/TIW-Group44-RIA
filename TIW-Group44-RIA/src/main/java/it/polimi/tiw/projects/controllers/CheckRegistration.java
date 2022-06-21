@@ -67,7 +67,7 @@ public class CheckRegistration extends HttpServlet {
 			errorMsg = errorMsg + " " + ERRORS.USERNAME_CHOSEN;
 		}catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println( ERRORS.SQL_ERROR);
+			response.getWriter().println( ERRORS.SQL_ERROR_USER);
 			return;
 		}
 		
@@ -81,7 +81,7 @@ public class CheckRegistration extends HttpServlet {
 			userDAO.createUser(username, psw, name, surname, mail);
 		}catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println( ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_USER);
 			return;	
 		}
 		

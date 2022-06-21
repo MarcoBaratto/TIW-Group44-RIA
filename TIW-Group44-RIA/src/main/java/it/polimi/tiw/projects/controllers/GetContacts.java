@@ -49,7 +49,7 @@ public class GetContacts extends HttpServlet {
 			addressBook = addressBookDAO.getAddressBook(user.getId());
 		}catch(SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_CONTACTS);
 			return;
 		}
 		

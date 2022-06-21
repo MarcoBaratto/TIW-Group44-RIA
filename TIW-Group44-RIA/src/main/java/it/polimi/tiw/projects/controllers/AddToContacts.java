@@ -54,7 +54,7 @@ public class AddToContacts extends HttpServlet {
 			notAuthorized = bankAccountDAO.checkAssociationAccountUser(contactId, contactAccount);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 		
@@ -69,7 +69,7 @@ public class AddToContacts extends HttpServlet {
 			addressBookDAO.createContact(user.getId(), contactAccount);
 		}catch(SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_CONTACTS);
 			return;
 		}catch(Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

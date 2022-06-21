@@ -89,7 +89,7 @@ public class CreateTransfer extends HttpServlet {
 			notAuthorizedOrigin = bankAccountDAO.checkAssociationAccountUser(user.getId(), bankAccountidOrigin);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 
@@ -108,14 +108,14 @@ public class CreateTransfer extends HttpServlet {
 			accountDest = bankAccountDAO.detailsAccount(bankAccountidDestination);
 		}catch(SQLException e){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 		}
 
 		try {
 			notAuthorizedDest = bankAccountDAO.checkAssociationAccountUser(userDestination, bankAccountidDestination);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 
@@ -136,27 +136,32 @@ public class CreateTransfer extends HttpServlet {
 		
 		try {
 			try {
+				//start transaction
 				connection.setAutoCommit(false);
-				
+				//removes funds from one Account and adds them to the other
 				bankAccountDAO.transfer(amount, bankAccountidDestination, bankAccountidOrigin);
-				
+				//creates an entry in the Transfer table
 				transferDAO.createTransfer(bankAccountidOrigin, bankAccountidDestination, amount, comments);
-				
+				//if no Exceptions are thrown the transaction can be committed
 				connection.commit();
+
 			}catch(SQLException e) {
+				//generic SQL error, rollback and throw exception to show the error
 				connection.rollback();
-				connection.setAutoCommit(true);
 				throw e;
 			}catch(NotEnoughFundsException e) {
+				//not enough funds, send error and rollback transaction
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				response.getWriter().println(ERRORS.NO_FUNDS);
 				connection.rollback();
-				connection.setAutoCommit(true);
 				return;
+			}finally {
+				//finally will always execute 
+				connection.setAutoCommit(true);
 			}
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR);
+			response.getWriter().println(ERRORS.SQL_ERROR_TRANSFER);
 			return;
 		}
 		
