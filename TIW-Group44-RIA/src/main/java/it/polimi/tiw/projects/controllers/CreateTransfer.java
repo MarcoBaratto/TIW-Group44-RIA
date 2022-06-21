@@ -22,6 +22,8 @@ import it.polimi.tiw.projects.beans.BankAccount;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
 import it.polimi.tiw.projects.dao.TransferDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
+import it.polimi.tiw.projects.exceptions.NotEnoughFundsException;
 import it.polimi.tiw.projects.thinBeans.ThinTransfer;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
@@ -70,7 +72,7 @@ public class CreateTransfer extends HttpServlet {
 
 		if (isBadRequest) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Incorrect or missing param values");
+			response.getWriter().println(ERRORS.INCORRECT_PARAMS);
 			return;
 		}
 
@@ -87,18 +89,18 @@ public class CreateTransfer extends HttpServlet {
 			notAuthorizedOrigin = bankAccountDAO.checkAssociationAccountUser(user.getId(), bankAccountidOrigin);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Not possible to verify Origin Acccount ownership");
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 
 		if(notAuthorizedOrigin) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("You are not the account's owner");
+			response.getWriter().println(ERRORS.NOT_OWNER);
 			return;
 		}
 
 		if(bankAccountidOrigin == bankAccountidDestination) {
-			errorMsg += "Origin and Destination are the same BankAccount ";
+			errorMsg = ERRORS.SAME_ACCOUNT.toString();
 		}
 
 		try {
@@ -106,19 +108,19 @@ public class CreateTransfer extends HttpServlet {
 			accountDest = bankAccountDAO.detailsAccount(bankAccountidDestination);
 		}catch(SQLException e){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("ERROR: cannot find accounts");
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 		}
 
 		try {
 			notAuthorizedDest = bankAccountDAO.checkAssociationAccountUser(userDestination, bankAccountidDestination);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("ERROR: cannot read data");
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 
 		if(notAuthorizedDest) {
-			errorMsg += "The recipient isn't the owner of the account ";
+			errorMsg += " " + ERRORS.NOT_OWNER;
 		}
 
 		TransferDAO transferDAO = new TransferDAO(connection);
@@ -134,37 +136,32 @@ public class CreateTransfer extends HttpServlet {
 		
 		try {
 			try {
+				//start transaction
 				connection.setAutoCommit(false);
-				try {
-					bankAccountDAO.transfer(amount, bankAccountidDestination, bankAccountidOrigin);
-				}catch(SQLException e){
-					if(e.getMessage().equals("Insufficent funds ")) {
-						if(errorMsg.isEmpty()) {
-							errorMsg = e.getMessage();
-						} else {
-							errorMsg += "and " + e.getMessage();
-						}
-					}
-					throw e;
-				}
-				if(errorMsg.isEmpty()) {
-					try {
-						transferDAO.createTransfer(bankAccountidOrigin, bankAccountidDestination, amount, comments);
-					}catch(SQLException e) {
-						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-						response.getWriter().println("There was a problem during the transfer's creation");
-						return;
-					}
-				}
+				//removes funds from one Account and adds them to the other
+				bankAccountDAO.transfer(amount, bankAccountidDestination, bankAccountidOrigin);
+				//creates an entry in the Transfer table
+				transferDAO.createTransfer(bankAccountidOrigin, bankAccountidDestination, amount, comments);
+				//if no Exceptions are thrown the transaction can be committed
 				connection.commit();
-			} catch (SQLException e) {
+
+			}catch(SQLException e) {
+				//generic SQL error, rollback and throw exception to show the error
 				connection.rollback();
-			} finally {
+				throw e;
+			}catch(NotEnoughFundsException e) {
+				//not enough funds, send error and rollback transaction
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println(ERRORS.NO_FUNDS);
+				connection.rollback();
+				return;
+			}finally {
+				//finally will always execute 
 				connection.setAutoCommit(true);
 			}
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("There was a problem accessing data");
+			response.getWriter().println(ERRORS.SQL_ERROR_TRANSFER);
 			return;
 		}
 		

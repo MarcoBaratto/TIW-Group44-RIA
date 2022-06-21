@@ -124,6 +124,7 @@
 	        }
 	      );
 	    };
+	    
 
 
 	    this.update = function(arrayAccounts) {
@@ -152,8 +153,8 @@
 	        linkText = document.createTextNode("Show");
 	        anchor.appendChild(linkText);
 	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
+	        
 	        anchor.addEventListener("click", (e) => {
-	          // dependency via module parameter
 	          pageOrchestrator.refreshAlert();
 	          selectedAccount = e.target.getAttribute("accountid");
 	          transferList.show(e.target.getAttribute("accountid"));
@@ -163,7 +164,6 @@
 	        self.listcontainerbody.appendChild(row);
 	      });
 	      this.listcontainer.style.visibility = "visible";
-		  	
 	    }
 
 	    this.autoclick = function(accountId) {

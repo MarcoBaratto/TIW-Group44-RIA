@@ -19,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import it.polimi.tiw.projects.thinBeans.ThinUser;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.UserDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/CheckLogin")
@@ -43,7 +44,7 @@ public class CheckLogin extends HttpServlet {
 			usrn = StringEscapeUtils.escapeJava(request.getParameter("username"));
 			pwd = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
 			if (usrn == null || pwd == null || usrn.isEmpty() || pwd.isEmpty()) {
-				throw new Exception("Missing or empty credential value");
+				throw new Exception(ERRORS.INCORRECT_PARAMS.toString());
 			}
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -58,7 +59,7 @@ public class CheckLogin extends HttpServlet {
 			user = userDao.checkCredentials(usrn, pwd);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Unable to retrieve data");
+			response.getWriter().println(ERRORS.SQL_ERROR_USER);
 			return;
 		}
 
@@ -67,7 +68,7 @@ public class CheckLogin extends HttpServlet {
 
 		if (user == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().println("No user found...");
+			response.getWriter().println(ERRORS.LOGIN_ERROR);
 			return;
 		} else {
 			request.getSession().setAttribute("user", user);

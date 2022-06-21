@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import it.polimi.tiw.projects.beans.User;
 import it.polimi.tiw.projects.dao.AddressBookDAO;
 import it.polimi.tiw.projects.dao.BankAccountDAO;
+import it.polimi.tiw.projects.enums.ERRORS;
 import it.polimi.tiw.projects.utils.ConnectionHandler;
 
 @WebServlet("/AddToContacts")
@@ -42,7 +43,7 @@ public class AddToContacts extends HttpServlet {
 		} catch (NumberFormatException | NullPointerException e) {
 			// only for debugging e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Incorrect param values");
+			response.getWriter().println(ERRORS.INCORRECT_PARAMS);
 			return;
 		}
 		
@@ -53,13 +54,13 @@ public class AddToContacts extends HttpServlet {
 			notAuthorized = bankAccountDAO.checkAssociationAccountUser(contactId, contactAccount);
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Not possible to recover data");
+			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 			return;
 		}
 		
 		if(notAuthorized) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Owner and account don't match");
+			response.getWriter().println(ERRORS.NOT_OWNER);
 			return;
 		}
 		
@@ -68,7 +69,7 @@ public class AddToContacts extends HttpServlet {
 			addressBookDAO.createContact(user.getId(), contactAccount);
 		}catch(SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Not possible to recover data");
+			response.getWriter().println(ERRORS.SQL_ERROR_CONTACTS);
 			return;
 		}catch(Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

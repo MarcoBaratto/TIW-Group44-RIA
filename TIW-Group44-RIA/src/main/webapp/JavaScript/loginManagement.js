@@ -34,7 +34,7 @@
   
   document.getElementById("RegistrationButton").addEventListener('click', (e)=> {
 	var form = e.target.closest("form");
-	var errorMessage = document.getElementById("errorMessageRegistration_id");
+	var message = document.getElementById("messageRegistration_id");
 	
 	var mail = document.getElementById("mail_id");
 	var psw = document.getElementById("psw_id");
@@ -43,13 +43,13 @@
 	var pattern = new RegExp('^(.+)@(\\S+)$');
 	
 	if(!pattern.test(mail.value)){
-		errorMessage.textContent = "Invalid mail address";
+		message.textContent = "Invalid mail address";
 	}
 	else if(psw.value!==psw2.value){
-		errorMessage.textContent = "Passwords don't match";
+		message.textContent = "Passwords don't match";
 	}
 	else if(form.checkValidity()){
-		sendForm('CheckRegistration', document.getElementById("errorMessageRegistration"), form);
+		sendForm('CheckRegistration', message, form);
 	}
 	else {
     	 form.reportValidity();
@@ -57,23 +57,23 @@
 });
 
 
-	function sendForm(servlet, error, form){
+	function sendForm(servlet, alert, form){
 		makeCall("POST", servlet, form,
         function(x) {
           if (x.readyState == XMLHttpRequest.DONE) {
             var message = x.responseText;
             switch (x.status) {
               case 200:
-              	error.textContent = message;
+              	alert.textContent = message;
                 break;
               case 400: // bad request
-                error.textContent = message;
+                alert.textContent = message;
                 break;
               case 401: // unauthorized
-                  error.textContent = message;
-                  break;
+                alert.textContent = message;
+                break;
               case 500: // server error
-            	error.textContent = message;
+            	alert.textContent = message;
                 break;
             }
           }

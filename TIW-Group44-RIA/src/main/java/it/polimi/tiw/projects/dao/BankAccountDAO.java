@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import it.polimi.tiw.projects.beans.BankAccount;
+import it.polimi.tiw.projects.exceptions.NotEnoughFundsException;
 
 
 /**
@@ -107,16 +108,16 @@ public class BankAccountDAO{
 		return account;
 	}
 	
-	public void transfer(BigDecimal amount, int idDestination, int bankAccountidOrigin) throws SQLException{
+	public void transfer(BigDecimal amount, int idDestination, int bankAccountidOrigin) throws SQLException, NotEnoughFundsException{
 			//TODO split in different methods
 			PreparedStatement selectBalanceO = con.prepareStatement("SELECT Balance FROM BankAccount WHERE ID = ?");
 			selectBalanceO.setInt(1, bankAccountidOrigin);
 			ResultSet result = selectBalanceO.executeQuery();
 			if(result.next())
 				if(result.getBigDecimal("Balance").compareTo(amount)<0){
-					throw new SQLException("Insufficent funds ");
+					throw new NotEnoughFundsException();
 				}
-				
+			
 			PreparedStatement ps = con.prepareStatement("update BankAccount set Balance=Balance-? Where ID=?");
 			ps.setBigDecimal(1, amount);
 			ps.setInt(2, bankAccountidOrigin);
