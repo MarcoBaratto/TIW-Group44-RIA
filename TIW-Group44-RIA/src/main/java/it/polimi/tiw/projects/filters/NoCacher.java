@@ -35,7 +35,6 @@ public class NoCacher implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException 
 
 	{
-		System.out.print("No cacher filter executing ...\n");
 		HttpServletResponse res = (HttpServletResponse) response;
 		res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 		res.setHeader("Pragma", "no-cache"); // HTTP 1.0.

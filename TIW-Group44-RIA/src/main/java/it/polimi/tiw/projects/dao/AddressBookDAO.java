@@ -21,8 +21,6 @@ public class AddressBookDAO{
 					pstatement.setInt(1, ownerId);
 					pstatement.setInt(2, accountId);
 					pstatement.executeUpdate();
-					
-					con.commit();
 				}
 			}else {
 				throw new Exception("Contact already present");
@@ -38,15 +36,14 @@ public class AddressBookDAO{
 			try (ResultSet result = pstatement.executeQuery();) {
 				if (!result.isBeforeFirst()) 
 					return null;
-				else {
-					AddressBook addressBook = new AddressBook();
-					addressBook.setOwnerId(ownerId);
-					while(result.next()) {
-						addressBook.addContact(result.getInt("U"), result.getInt("CONTACTACCOUNT"));
-					}
-					
-					return addressBook;
+				
+				AddressBook addressBook = new AddressBook();
+				addressBook.setOwnerId(ownerId);
+				while(result.next()) {
+					addressBook.addContact(result.getInt("U"), result.getInt("CONTACTACCOUNT"));
 				}
+				
+				return addressBook;
 			}
 		}
 	}
