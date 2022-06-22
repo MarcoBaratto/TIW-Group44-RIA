@@ -21,8 +21,6 @@ public class AddressBookDAO{
 					pstatement.setInt(1, ownerId);
 					pstatement.setInt(2, accountId);
 					pstatement.executeUpdate();
-					
-					con.commit();
 				}
 			}else {
 				throw new Exception("Contact already present");
