@@ -36,15 +36,14 @@ public class AddressBookDAO{
 			try (ResultSet result = pstatement.executeQuery();) {
 				if (!result.isBeforeFirst()) 
 					return null;
-				else {
-					AddressBook addressBook = new AddressBook();
-					addressBook.setOwnerId(ownerId);
-					while(result.next()) {
-						addressBook.addContact(result.getInt("U"), result.getInt("CONTACTACCOUNT"));
-					}
-					
-					return addressBook;
+				
+				AddressBook addressBook = new AddressBook();
+				addressBook.setOwnerId(ownerId);
+				while(result.next()) {
+					addressBook.addContact(result.getInt("U"), result.getInt("CONTACTACCOUNT"));
 				}
+				
+				return addressBook;
 			}
 		}
 	}

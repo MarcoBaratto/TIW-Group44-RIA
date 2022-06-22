@@ -53,7 +53,7 @@
 			this.addContactButton.style.display = 'block';
 		
 			if(addressBook !== undefined) {
-				var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
+				var contactsAlreadyPresent = addressBook.has(transfer.idOwnerTo.toString())? addressBook.get(transfer.idOwnerTo.toString()): [];
 				var array = Array.from(contactsAlreadyPresent);
 				if(array.includes(transfer.idBankAccountTo)){
 					this.addContactButton.style.display = 'none';
@@ -448,7 +448,6 @@
 					case 500:	
 					default:
 						document.getElementById("contactsError_id").textContent = "Unable to recover contacts";
-						
 					}
 				}
 			});
