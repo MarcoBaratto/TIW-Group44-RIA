@@ -266,7 +266,10 @@
 		  var accountDestDatalist = document.getElementById("accountContacts_id");
 		  var userDestination = document.getElementById("userDestination");
 		  var amount = document.getElementById("amountT_id");
-
+			
+		  transferForm.addEventListener("submit", (e)=>{
+			e.preventDefault();
+		  });	
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  pageOrchestrator.refreshAlert();
 			  if(transferForm.checkValidity()){
@@ -282,11 +285,12 @@
 				  
 				  var formData = new FormData(transferForm);
 				  formData.append("bankAccountidOrigin", selectedAccount);
-
+		
 				  makeCall("POST", "CreateTransfer", formData,
 					  function (x){
 						  if (x.readyState == XMLHttpRequest.DONE) {
-							  var message = x.responseText;						  
+							  var message = x.responseText;
+							  transferForm.reset();						  
 							  switch (x.status) {
 								  case 200:
 									  pageOrchestrator.showSuccess(JSON.parse(message));
@@ -330,6 +334,10 @@
 	  function CreateAccount(pageOrchestrator){
 		var createAccountButton = document.getElementById("createAccount_id");
 		var createAccountForm = document.getElementById("createAccountForm_id");
+		
+		createAccountForm.addEventListener("submit", (e)=>{
+			e.preventDefault();
+		});
 		 
 		createAccountButton.addEventListener("click", (e)=>
 		  {
