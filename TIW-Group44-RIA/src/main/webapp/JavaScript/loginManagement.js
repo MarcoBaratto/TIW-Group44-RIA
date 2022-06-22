@@ -58,7 +58,7 @@
 		alert.textContent = "Passwords don't match";
 	}
 	else if(form.checkValidity()){
-		makeCall("POST" ,'CheckRegistration', function(x) {
+		makeCall("POST" ,'CheckRegistration', form, function(x) {
           if (x.readyState == XMLHttpRequest.DONE) {
             var message = x.responseText;
             switch (x.status) {
