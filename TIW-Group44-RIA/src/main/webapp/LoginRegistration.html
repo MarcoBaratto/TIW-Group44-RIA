@@ -5,19 +5,19 @@
 <title>Login & Registration page</title>
 <script src="JavaScript/utils.js" charset="utf-8" defer></script>
 <script src="JavaScript/loginManagement.js" charset="utf-8" defer></script>
-<link rel="stylesheet" type="text/css" media="all" href="CSS/mystyle.css" />
+<link rel="stylesheet" type="text/css" media="all" href="css/mystyle.css" />
 </head>
 <body>
 	<h1>Welcome to the Bank</h1>
 
-	<form onsubmit="event.preventDefault();">
+	<form>
 		Username: <input type="text" name="username" required id="usernameLogin_id"> <br>
 		Password: <input type="password" name="pwd" required id="pswLogin_id"><br>
 		<input type="submit" id="LoginButton" value="Login">
 		<p id = "errorMessageLogin"> </p>
 	</form>
 	
-	<form onsubmit="event.preventDefault();">
+	<form>
 		Name: <input type="text" name="name" required id="name_id"><br>
 		Surname: <input type="text" name="surname" required id="surname_id"><br>
 		Mail: <input type="email" name="mail" required id="mail_id"><br>

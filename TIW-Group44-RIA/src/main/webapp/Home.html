@@ -29,7 +29,7 @@
 		</table>
 		</div>
 		<br>
-		<form id = "createAccountForm_id" action="#">
+		<form id = "createAccountForm_id">
 			Balance: <input type="number" name="balance" min="0" step="0.01" required><br>
 
 			<input type="submit" value="Create" id="createAccount_id">
@@ -64,7 +64,7 @@
 			</tbody>
 		</table>
 		</div>
-		<form id = "createTransferForm_id" onsubmit="event.preventDefault();">
+		<form id = "createTransferForm_id">
 			<p id = "contactsError_id"></p>
 			UserDestination: <input type="number" name="userDestination" id="userDestination" min="0" required list="userContacts_id"> 
 			<datalist id="userContacts_id"> 
