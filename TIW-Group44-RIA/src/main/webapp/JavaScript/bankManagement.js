@@ -52,13 +52,11 @@
 			this.transferOkDiv.style.display = 'block';
 			this.addContactButton.style.display = 'block';
 		
-			if(addressBook !== undefined) {
-				var contactsAlreadyPresent = addressBook.has(transfer.idOwnerTo.toString())? addressBook.get(transfer.idOwnerTo.toString()): [];
+			if(addressBook !== undefined && addressBook.has(transfer.idOwnerTo.toString())) {
+				var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
 				var array = Array.from(contactsAlreadyPresent);
-				if(array.includes(transfer.idBankAccountTo)){
+				if(array.includes(transfer.idBankAccountTo))
 					this.addContactButton.style.display = 'none';
-				}else
-					this.addContactButton.style.display = 'block';
 			}else
 				this.addContactButton.style.display = 'block';
 			
