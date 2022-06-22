@@ -286,7 +286,8 @@
 				  makeCall("POST", "CreateTransfer", formData,
 					  function (x){
 						  if (x.readyState == XMLHttpRequest.DONE) {
-							  var message = x.responseText;						  
+							  var message = x.responseText;
+							  transferForm.reset();						  
 							  switch (x.status) {
 								  case 200:
 									  pageOrchestrator.showSuccess(JSON.parse(message));
