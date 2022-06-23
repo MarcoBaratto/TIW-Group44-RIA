@@ -79,7 +79,7 @@ public class BankAccountDAO{
 			pstatement.setInt(1, BankAccountId);
 			pstatement.setInt(2, UserId);
 			try (ResultSet result = pstatement.executeQuery();){
-				//if there are no results (no one has that username) isBeforeFirst returns false -> the username is unique
+				//if there are no results (no one has that username) isBeforeFirst returns false
 				return !result.isBeforeFirst();		
 			}
 		}

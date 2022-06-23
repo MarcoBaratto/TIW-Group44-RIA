@@ -76,31 +76,31 @@ public class CreateTransfer extends HttpServlet {
 			return;
 		}
 
-		String errorMsg = "";
 		// Get users and Bank Accounts
 		User user = (User) session.getAttribute("user");
 		BankAccount accountOrigin = null;
 		BankAccount accountDest = null;
 		BankAccountDAO bankAccountDAO = new BankAccountDAO(connection);
-		boolean notAuthorizedOrigin = true;
-		boolean notAuthorizedDest = true;
 
 		try {
-			notAuthorizedOrigin = bankAccountDAO.checkAssociationAccountUser(user.getId(), bankAccountidOrigin);
-		} catch (SQLException e) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			accountOrigin = bankAccountDAO.detailsAccount(bankAccountidOrigin);
+			accountDest = bankAccountDAO.detailsAccount(bankAccountidDestination);
+		}catch(SQLException e){
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
-			return;
 		}
-
-		if(notAuthorizedOrigin) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println(ERRORS.NOT_OWNER);
-			return;
-		}
+		
+		if(accountOrigin==null ||accountOrigin.getIdUser()!=user.getId()
+			|| accountDest==null || accountDest.getIdUser()!=userDestination){
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println(ERRORS.NOT_OWNER);
+				return;
+			}
 
 		if(bankAccountidOrigin == bankAccountidDestination) {
-			errorMsg = ERRORS.SAME_ACCOUNT.toString();
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println(ERRORS.SAME_ACCOUNT);
+			return;
 		}
 
 		try {
@@ -111,28 +111,13 @@ public class CreateTransfer extends HttpServlet {
 			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
 		}
 
-		try {
-			notAuthorizedDest = bankAccountDAO.checkAssociationAccountUser(userDestination, bankAccountidDestination);
-		} catch (SQLException e) {
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println(ERRORS.SQL_ERROR_ACCOUNT);
-			return;
-		}
-
-		if(notAuthorizedDest) {
-			errorMsg += " " + ERRORS.NOT_OWNER;
-		}
+		
 
 		TransferDAO transferDAO = new TransferDAO(connection);
 		BigDecimal balancesBefore[] = new BigDecimal[2], balancesAfter[] = new BigDecimal[2];
 		balancesBefore[0] = accountOrigin.getBalance();
 		balancesBefore[1] = accountDest.getBalance();
 		
-		if(!errorMsg.isEmpty()) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println(errorMsg);
-			return;
-		}
 		
 		try {
 			try {

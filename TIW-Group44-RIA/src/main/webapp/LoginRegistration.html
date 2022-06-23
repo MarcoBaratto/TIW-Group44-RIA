@@ -10,14 +10,14 @@
 <body>
 	<h1>Welcome to the Bank</h1>
 
-	<form>
+	<form id="loginForm_id">
 		Username: <input type="text" name="username" required id="usernameLogin_id"> <br>
 		Password: <input type="password" name="pwd" required id="pswLogin_id"><br>
 		<input type="submit" id="LoginButton" value="Login">
-		<p id = "errorMessageLogin"> </p>
+		<p id = "errorMessageLogin" class="error"> </p>
 	</form>
 	
-	<form>
+	<form id="registrationForm_id">
 		Name: <input type="text" name="name" required id="name_id"><br>
 		Surname: <input type="text" name="surname" required id="surname_id"><br>
 		Mail: <input type="email" name="mail" required id="mail_id"><br>

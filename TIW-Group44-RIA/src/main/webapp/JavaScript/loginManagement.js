@@ -4,13 +4,13 @@
 
 (function() { // avoid variables ending up in the global scope
 
+  document.getElementById("loginForm_id").addEventListener("submit", (e)=>{
+		e.preventDefault();
+	});	
+
   document.getElementById("LoginButton").addEventListener('click', (e) => {
     var form = e.target.closest("form");
     
-    form.addEventListener("submit", (e)=>{
-		e.preventDefault();
-	});
-	
     if (form.checkValidity()) {
 		makeCall("POST", 'CheckLogin', e.target.closest("form"),
         function(x) {
@@ -37,13 +37,14 @@
     }
   });
   
+  document.getElementById("registrationForm_id").addEventListener("submit", (e)=>{
+		e.preventDefault();
+	});
+  
   document.getElementById("RegistrationButton").addEventListener('click', (e)=> {
 	var form = e.target.closest("form");
 	var alert = document.getElementById("messageRegistration_id");
 	
-	form.addEventListener("submit", (e)=>{
-		e.preventDefault();
-	});
 	
 	var mail = document.getElementById("mail_id");
 	var psw = document.getElementById("psw_id");
