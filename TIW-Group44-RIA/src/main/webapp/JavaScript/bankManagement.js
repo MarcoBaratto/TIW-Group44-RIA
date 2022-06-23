@@ -4,18 +4,19 @@
 	  let transferList, accountList, transferForm, resultTransferDiv, selectedAccount, addressBook, 
 	    pageOrchestrator = new PageOrchestrator(); // main controller
 
+	  //Actions done when the home page is loaded
 	  window.addEventListener("load", () => {
 	    if (sessionStorage.getItem("username") == null) {
 	      window.location.href = "LoginRegistration.html";
 	    } else {
 	      pageOrchestrator.start(); // initialize the components
 	      pageOrchestrator.refresh();
-	    } // display initial content
+	    }
 	  }, false);
 
 
 	  // Constructors of view components
-	  
+	  //The div that handles all the possible result of a transfer
 	  function ResultTransferDiv(_resultDiv, _transferOKDiv, _transferKODiv, _fieldsSuccess, _errorP, _closeButton, contactMessage, pageOrchestrator) {
 		this.resultDiv = _resultDiv;
 		this.transferOkDiv = _transferOKDiv;
@@ -26,15 +27,18 @@
 		this.contactMessage = contactMessage;
 		this.pageOrchestrator = pageOrchestrator;
 		
+		//Hide the div and empty the message about the possibility of add the bank account to the address book
 		this.reset = function() {
 	       this.resultDiv.style.display = 'none';
 	       this.contactMessage.textContent = "";
 	    }
 	    
+	    //When the close button is clicked the home page is refreshed
 	    this.closeButton.addEventListener("click", (e) => {
 	          this.pageOrchestrator.refresh(selectedAccount);
 	     	}, false);
 		
+		//If a transfer has gone well all the info about this are shown
 		this.showSuccess = function(transfer) {
 			this.fieldsSuccess.comments.textContent = transfer.comments;
 			this.fieldsSuccess.amount.textContent = "Transfer amount: " + transfer.amount;
@@ -52,6 +56,7 @@
 			this.transferOkDiv.style.display = 'block';
 			this.addContactButton.style.display = 'block';
 		
+		    //Check if the add button has to be shown
 			if(addressBook !== undefined && addressBook.has(transfer.idOwnerTo.toString())) {
 				var contactsAlreadyPresent = addressBook.get(transfer.idOwnerTo.toString());
 				var array = Array.from(contactsAlreadyPresent);
@@ -61,11 +66,14 @@
 				this.addContactButton.style.display = 'block';
 			
 			var self = this;
+			
+			//an AJAX call is done to add the contact to the address book
 			this.addContactButton.addEventListener("click", (e)=>{
 				makeCall("GET", "AddToContacts?contactId="+transfer.idOwnerTo+"&contactAccount="+transfer.idBankAccountTo, null,
 				function(req){
 					if (req.readyState == 4) {
 		            	switch(req.status){
+							//in every case a message is shown and the button hidden
 							case 200:
 								contactMessage.textContent = "Contact ADDED";
 								break;
@@ -80,6 +88,7 @@
 			});
 		}
 		
+		//If a transfer hasn't gone well the reason is shown
 		this.showFailure = function(message) {
 			this.errorP.textContent = message;
 			this.resultDiv.style.display = 'block';
@@ -88,29 +97,36 @@
 		}
 			
 	  }
-
+	  
+	  //The List containing all the accounts of the user in the session
 	  function AccountList(_alert, _listcontainer, _listcontainerbody, _listaccounttable) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
 	    this.listaccounttable = _listaccounttable;
 
+		//Hide the account list
 	    this.reset = function() {
 	      this.listcontainer.style.display = 'none';
 	    }
 
+		//Display the account list
 	    this.show = function(next) {
 	      this.listcontainer.style.display = 'block';
 	      var self = this;
+	      
+	      //an AJAX call is done to get the accounts
 	      makeCall("GET", "GetAccountsData", null,
 	        function(req) {
 	          if (req.readyState == 4) {
 	            var message = req.responseText;
 	            if (req.status == 200) {
+				  //If everything goes well the account list is updated
 	              var accountsToShow = JSON.parse(req.responseText);
 	              self.update(accountsToShow); 
-	              if (next) next(); // show the default element of the list if present
-	            
+	              // show the default element of the list if present
+	              if (next) next(); 
+	   
 	          } else if (req.status == 403) {
                   window.location.href = req.getResponseHeader("Location");
                   window.sessionStorage.removeItem('username');
@@ -123,12 +139,13 @@
 	      );
 	    };
 	    
-
-
+		//Updates the account List with alle the accounts given by input
 	    this.update = function(arrayAccounts) {
 	      var row, destcell, datecell, linkcell, anchor;
 	      this.listcontainerbody.innerHTML = ""; // empty the table body
 	      var self = this;
+	      
+	      //If there aren't accounts a message is shown and the table is hidden
 	      if (arrayAccounts.length == 0) {
                 this.alert.textContent = "No accounts yet, please create a new one";
                 this.listaccounttable.style.display = 'none';
@@ -137,6 +154,7 @@
 	      }
 	      this.listcontainer.style.display = 'block';
 	      this.listaccounttable.style.display = 'block';
+	      //Add every account in a row of the table
 	      arrayAccounts.forEach(function(account) { 
 	        row = document.createElement("tr");
 	        destcell = document.createElement("td");
@@ -152,6 +170,7 @@
 	        anchor.appendChild(linkText);
 	        anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
 	        
+	        //Add the listener to the link for every account
 	        anchor.addEventListener("click", (e) => {
 	          pageOrchestrator.refreshAlert();
 	          selectedAccount = e.target.getAttribute("accountid");
@@ -164,6 +183,7 @@
 	      this.listcontainer.style.visibility = "visible";
 	    }
 
+		//When the page is loaded/reloaded the transfers of the first or the selected bank account are shown
 	    this.autoclick = function(accountId) {
 	      var e = new Event("click");
 	      var selector = 'a[accountid="' + accountId + '"]';
@@ -173,25 +193,32 @@
 	    }
 	  }
 	  
+	  //The List containing all the transfers of the selected bank account
 	  function TransferList(_alert, _listcontainer, _listcontainerbody, _listtransfertable) {
 	    this.alert = _alert;
 	    this.listcontainer = _listcontainer;
 	    this.listcontainerbody = _listcontainerbody;
 	    this.listtransfertable = _listtransfertable;
 
+		//Hide the transfer list
 	    this.reset = function() {
 	      this.listcontainer.style.display = 'none';
 	    }
 
+		//Display the transfer list
 	    this.show = function(accountId) {
+		  //get the address book
 		  pageOrchestrator.getAddressBook();
 		  this.listcontainer.style.display = 'block';
 	      var self = this;
+	      
+	      //an AJAX call is done to get the transfers
 	      makeCall("GET", "GetTransfersData?bankAccountid=" + accountId, null,
 	        function(req) {
 	          if (req.readyState == 4) {
 	            var message = req.responseText;
 	            if (req.status == 200) {
+				  //If everything has gone well the transfers are shown
 	              var transfersToShow = JSON.parse(req.responseText);
 				  self.update(transfersToShow); 	            
 	          } else if (req.status == 403) {
@@ -206,11 +233,12 @@
 	      );
 	    };
 
-
+		//Build updated transfer list
 	    this.update = function(arrayTransfers) {
 	      var row, idTransferCell, amountCell, originCell, destinationCell, dateCell, commentsCell;
 	      this.listcontainerbody.innerHTML = ""; // empty the table body
-	      // build updated list
+	     
+	      //If there aren't transfers a message is shown and the table is hidden
 	      if (arrayTransfers.length == 0) {
                 this.alert.textContent = "No transfers yet!";
                 this.listtransfertable.style.display = 'none';
@@ -221,7 +249,8 @@
 	      let p = document.querySelector("#listTransfersTable_id p");
           p.innerHTML = "Selected Account: " + selectedAccount;        
 	      var self = this;
-	      arrayTransfers.forEach(function(transfer) { // self visible here, not this
+	      //Add every transfer in a row of the table
+	      arrayTransfers.forEach(function(transfer) {
 	        row = document.createElement("tr");
 	        
 	        idTransferCell = document.createElement("td");
@@ -259,6 +288,7 @@
 	    }
 	  }
 
+	  //The Form where a transfer can be created
 	  function TransferForm(pageOrchestrator){
 		  var transferForm = document.getElementById("createTransferForm_id");
 		  var accountDestination = document.getElementById("idDestination");
@@ -270,9 +300,12 @@
 		  transferForm.addEventListener("submit", (e)=>{
 			e.preventDefault();
 		  });	
+		  
+		  //A listener when the submit button is clicked that handles the creation of a transfer
 		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
 			  pageOrchestrator.refreshAlert();
 			  if(transferForm.checkValidity()){
+				  //Some check
 				  if(selectedAccount === accountDestination.value) {
 					  pageOrchestrator.showFailure("Origin account and destination can't be the same");
 					  //can't check balance-amount because the value could be outdated
@@ -286,6 +319,7 @@
 				  var formData = new FormData(transferForm);
 				  formData.append("bankAccountidOrigin", selectedAccount);
 		
+				  //an AJAX call is done to create the transfer
 				  makeCall("POST", "CreateTransfer", formData,
 					  function (x){
 						  if (x.readyState == XMLHttpRequest.DONE) {
@@ -293,9 +327,11 @@
 							  transferForm.reset();						  
 							  switch (x.status) {
 								  case 200:
+								  	  //If the transfer is ok the success div is shown	
 									  pageOrchestrator.showSuccess(JSON.parse(message));
 									  break;
 								  default:
+								  	  //If the transfer isn't' ok the failure div is shown	
 									  pageOrchestrator.showFailure(message);
 							  }
 						  }
@@ -303,6 +339,7 @@
 			  }
 		  });
 		  
+		  //When this field all the bank accounts corresponding to the user inserted in the userDestination form are loaded
 		  document.getElementById("idDestination").addEventListener("click", (e)=>{
 			accountDestDatalist.innerHTML="";
 			if(typeof addressBook !== 'undefined'&&addressBook.has(userDestination.value)){
@@ -318,6 +355,7 @@
 			}
 		});
 		  
+		  //Insert the data of the address book in the datalist of the user destination to allow the autoComplete
 		  this.autoComplete = function(){
 			userDestDatalist.innerHTML="";
 			keys = Array.from(addressBook.keys());
@@ -331,6 +369,7 @@
 
 	  }
 	  
+	  //The Form where a bank account can be created
 	  function CreateAccount(pageOrchestrator){
 		var createAccountButton = document.getElementById("createAccount_id");
 		var createAccountForm = document.getElementById("createAccountForm_id");
@@ -339,14 +378,17 @@
 			e.preventDefault();
 		});
 		 
+		//Listener that handles the creation of a bank account 
 		createAccountButton.addEventListener("click", (e)=>
 		  {
+			//an AJAX call is done to create the bank account
 			makeCall("POST", "CreateBankAccount", createAccountForm,
 			function(x){
 				if (x.readyState == XMLHttpRequest.DONE) {
 					var message = x.responseText;
 					switch(x.status){
 						case 200:
+							//If ok, the page is refresh, allowing to see the new bank account
 							pageOrchestrator.refresh();
 							break;	
 						default:
@@ -357,8 +399,7 @@
 		});
 	}
 
-
-
+	  //The page Orchestrator handles all the component
 	  function PageOrchestrator() {
 	    var alertContainer = document.getElementById("id_alert");
 	  	var alertList = [
@@ -369,6 +410,7 @@
 			document.getElementById("transferError_id")
 		  ];
 	    
+	    //Start creates all the component of the page
 	    this.start = function() {
 		  document.getElementById("username_id").textContent= sessionStorage.getItem('username');
 		  document.getElementById("user_id").textContent= sessionStorage.getItem('ID');
@@ -418,34 +460,40 @@
 	      
 	    };
 
+		//The page is refreshed and are shown the account list, the transfer list , the bank account creation form and the transfer creation form
 	    this.refresh = function(currentAccount) { // currentAccount initially null at start
 	      alertContainer.textContent = "";        // not null after creation of status change
 	      resultTransferDiv.reset();
 	      this.refreshAlert();
 	      accountList.show(function() {
 	        accountList.autoclick(currentAccount); 
-	      }); // closure preserves visibility of this
+	      }); 
 	    };
 
+		//Method called when a transfer is ok to show the correct div
 		this.showSuccess = function (transfer){
 			accountList.reset();
 			transferList.reset();
 			resultTransferDiv.showSuccess(transfer);
 		}
 		
+		//Method called when a transfer isn't ok' to show the correct div
 		this.showFailure = function (message){
 			accountList.reset();
 			transferList.reset();
 			resultTransferDiv.showFailure(message);
 		}
 		
+		//Get the address book
 		this.getAddressBook = function(){
+			//an AJAX call is done to get the address book 
 			makeCall("GET", "GetContacts", null, 
 			function (x){
 				if (x.readyState == XMLHttpRequest.DONE) {
 					var message = x.responseText;							  
 					switch (x.status) {
 					case 200:
+						//if ok the address book is transformed into a map and the info are loaded to allow the autoComplete
 						addressBook = new Map(Object.entries(JSON.parse(message)));
 						transferForm.autoComplete();
 						break;
@@ -459,6 +507,7 @@
 			});
 		}
 		
+		//All the alert component are cleared
 		this.refreshAlert = function() {
 			alertList.forEach(function(alert) {
 				alert.textContent = "";

@@ -158,6 +158,10 @@ public class CreateTransfer extends HttpServlet {
 		response.getWriter().println(transferJson);
 	}
 
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
+	}
 
 	public void destroy() {
 		try {

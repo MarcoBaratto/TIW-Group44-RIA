@@ -65,7 +65,6 @@ public class CheckLogin extends HttpServlet {
 
 		// If the user exists, add info to the session and go to home page, otherwise
 		// show login page with error message
-
 		if (user == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().println(ERRORS.LOGIN_ERROR);
@@ -79,6 +78,11 @@ public class CheckLogin extends HttpServlet {
 			String userJson = gson.toJson(new ThinUser(user.getUsername(), user.getId()));
 			response.getWriter().println(userJson);
 		}
+	}
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
 	}
 
 	public void destroy() {
