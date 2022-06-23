@@ -259,6 +259,8 @@
 	        
 	        amountCell = document.createElement("td");
 	        amountCell.textContent = transfer.amount;
+	        
+	        //set the cell's class based on the transfer's origin and destination
 	        if(transfer.idBankAccountFrom == selectedAccount)
 	        	amountCell.className="negative";
 	        else
@@ -399,7 +401,7 @@
 		});
 	}
 
-	  //The page Orchestrator handles all the component
+	  //The page Orchestrator handles all the components
 	  function PageOrchestrator() {
 	    var alertContainer = document.getElementById("id_alert");
 	  	var alertList = [
