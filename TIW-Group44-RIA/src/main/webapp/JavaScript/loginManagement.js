@@ -4,6 +4,7 @@
 
 (function() { // avoid variables ending up in the global scope
 
+  //Manage the login form
   document.getElementById("LoginButton").addEventListener('click', (e) => {
     var form = e.target.closest("form");
     
@@ -11,6 +12,7 @@
 		e.preventDefault();
 	});
 	
+	//The form is checked, if everything is ok an AJAX call is done
     if (form.checkValidity()) {
 		makeCall("POST", 'CheckLogin', e.target.closest("form"),
         function(x) {
@@ -18,6 +20,7 @@
             var message = x.responseText;
             switch (x.status) {
               case 200:
+              //if ok the user is added to the session storage and the home page is shown
               	var user = JSON.parse(x.responseText);
             	sessionStorage.setItem('username', user.username);
             	sessionStorage.setItem('ID', user.id);
@@ -37,6 +40,7 @@
     }
   });
   
+  //Manage the registration form
   document.getElementById("RegistrationButton").addEventListener('click', (e)=> {
 	var form = e.target.closest("form");
 	var alert = document.getElementById("messageRegistration_id");
@@ -51,6 +55,7 @@
 
 	var pattern = new RegExp('^(.+)@(\\S+)$');
 	
+	//The form is checked, if everything is ok an AJAX call is done
 	if(!pattern.test(mail.value)){
 		alert.textContent = "Invalid mail address";
 	}
@@ -62,6 +67,7 @@
           if (x.readyState == XMLHttpRequest.DONE) {
             var message = x.responseText;
             switch (x.status) {
+			  //in every case a message is shown
               case 200:
               	alert.textContent = message;
                 break;

@@ -71,6 +71,11 @@ public class CreateBankAccount extends HttpServlet {
 		response.getWriter().println("Account created!");
 	}
 	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
+	}
+	
 	public static boolean patternMatches(String balance) {
 		//^[0-9]*\.[0-9]{2}$ or ^[0-9]*\.[0-9][0-9]$
 	    return Pattern.compile("^[0-9]*(\\.[0-9]{0,2})?$")

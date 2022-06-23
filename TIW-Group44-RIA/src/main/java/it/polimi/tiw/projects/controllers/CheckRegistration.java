@@ -38,6 +38,7 @@ public class CheckRegistration extends HttpServlet {
 	
 		String username = null, name = null, surname = null, mail = null, psw = null, repeatPsw = null;
 		
+		//obtaining parameters from the request
 		username = StringEscapeUtils.escapeJava(request.getParameter("username"));
 		name = StringEscapeUtils.escapeJava(request.getParameter("name"));
 		surname = StringEscapeUtils.escapeJava(request.getParameter("surname"));
@@ -47,6 +48,7 @@ public class CheckRegistration extends HttpServlet {
 			
 		String errorMsg = "";
 			
+		//Checking the parameters
 		if(username == null || username.isEmpty() || name == null || name.isEmpty() || psw == null || psw.isEmpty()
 				|| repeatPsw == null || repeatPsw.isEmpty()|| mail == null || mail.isEmpty() 
 				|| surname == null || surname.isEmpty()) {
@@ -62,6 +64,7 @@ public class CheckRegistration extends HttpServlet {
 		
 		UserDAO userDAO = new UserDAO(connection);
 		
+		//Checking the uniqueness of the nickname
 		try {
 		if(!userDAO.checkUniqueNickName(username))
 			errorMsg = errorMsg + " " + ERRORS.USERNAME_CHOSEN;
@@ -71,12 +74,14 @@ public class CheckRegistration extends HttpServlet {
 			return;
 		}
 		
+		//If something is wrong, an error message is shown
 		if(errorMsg!="") {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().println(errorMsg);
 			return;
 		}
 		
+		//Creating the user
 		try{
 			userDAO.createUser(username, psw, name, surname, mail);
 		}catch (SQLException e) {
@@ -85,11 +90,15 @@ public class CheckRegistration extends HttpServlet {
 			return;	
 		}
 		
+		//return the user to the right view
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.getWriter().println("User created, you can Login now");
 	}
 	
-	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
+	}
 	
 	public static boolean patternMatches(String emailAddress) {
 	    return Pattern.compile("^(.+)@(\\S+)$")
