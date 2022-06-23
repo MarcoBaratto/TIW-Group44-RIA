@@ -34,7 +34,7 @@
 	    }
 	    
 	    //When the close button is clicked the home page is refreshed
-	    this.closeButton.addEventListener("click", (e) => {
+	    this.closeButton.addEventListener("click", () => {
 	          this.pageOrchestrator.refresh(selectedAccount);
 	     	}, false);
 		
@@ -68,7 +68,7 @@
 			var self = this;
 			
 			//an AJAX call is done to add the contact to the address book
-			this.addContactButton.addEventListener("click", (e)=>{
+			this.addContactButton.addEventListener("click", ()=>{
 				makeCall("GET", "AddToContacts?contactId="+transfer.idOwnerTo+"&contactAccount="+transfer.idBankAccountTo, null,
 				function(req){
 					if (req.readyState == 4) {
@@ -304,7 +304,7 @@
 		  });	
 		  
 		  //A listener when the submit button is clicked that handles the creation of a transfer
-		  document.getElementById("createTransferButton_id").addEventListener("click", (e)=>{
+		  document.getElementById("createTransferButton_id").addEventListener("click", ()=>{
 			  pageOrchestrator.refreshAlert();
 			  if(transferForm.checkValidity()){
 				  //Some check
@@ -342,7 +342,7 @@
 		  });
 		  
 		  //When this field all the bank accounts corresponding to the user inserted in the userDestination form are loaded
-		  document.getElementById("idDestination").addEventListener("click", (e)=>{
+		  document.getElementById("idDestination").addEventListener("click", ()=>{
 			accountDestDatalist.innerHTML="";
 			if(typeof addressBook !== 'undefined'&&addressBook.has(userDestination.value)){
 				set = addressBook.get(userDestination.value);
@@ -381,7 +381,7 @@
 		});
 		 
 		//Listener that handles the creation of a bank account 
-		createAccountButton.addEventListener("click", (e)=>
+		createAccountButton.addEventListener("click", ()=>
 		  {
 			//an AJAX call is done to create the bank account
 			makeCall("POST", "CreateBankAccount", createAccountForm,
